@@ -33,6 +33,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Scoreboard"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem3ActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -46,12 +49,15 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem4">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Right Click Enemy Color"/>
+                <Property name="text" type="java.lang.String" value="Set Left Click Enemy&apos;s Color"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem4ActionPerformed"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem5">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Middle Click Enemy Color"/>
+                <Property name="text" type="java.lang.String" value="Set Middle Click Enemy&apos;s Color"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem5ActionPerformed"/>
@@ -59,8 +65,11 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem6">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Left Click Enemy Color"/>
+                <Property name="text" type="java.lang.String" value="Set Right Click Enemy&apos;s Color"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem6ActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -107,22 +116,21 @@
           <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="126" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="l2" min="-2" pref="128" max="-2" attributes="0"/>
-                          <Component id="l1" min="-2" pref="128" max="-2" attributes="0"/>
-                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="l1" min="-2" pref="128" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="163" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="l3" alignment="0" min="-2" pref="41" max="-2" attributes="0"/>
-                          <Component id="b1" min="-2" pref="15" max="-2" attributes="0"/>
-                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="l2" min="-2" pref="128" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="192" max="-2" attributes="0"/>
+                      <Component id="b1" min="-2" pref="15" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace pref="193" max="32767" attributes="0"/>
           </Group>
+          <Component id="l3" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -134,9 +142,9 @@
               <Component id="l2" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="l3" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
               <Component id="b1" min="-2" pref="15" max="-2" attributes="0"/>
-              <EmptySpace pref="223" max="32767" attributes="0"/>
+              <EmptySpace pref="209" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -162,7 +170,8 @@
     </Component>
     <Component class="javax.swing.JLabel" name="l3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="3:0"/>
+        <Property name="horizontalAlignment" type="int" value="0"/>
+        <Property name="text" type="java.lang.String" value="Time left (seconds): 30"/>
       </Properties>
     </Component>
   </SubComponents>

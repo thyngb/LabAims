@@ -7,19 +7,50 @@ package labaims;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.List;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
  * @author ncoba
  */
 public class LabAims extends javax.swing.JFrame {
-
+    
+    String name = "annonymous";
+    
     Timer t1;
     int 
-        xAxis, yAxis, color, duration, count=30,
+        xAxis = 185, yAxis = 135, color, duration, count=30,
         scoreCurrent = 0, scoreHighest = 0;
     
     boolean pause = false, start = false;
@@ -29,22 +60,96 @@ public class LabAims extends javax.swing.JFrame {
         enemyB,
         enemyC;
     
+    DefaultTableModel model = new DefaultTableModel();
+    JTable table = new JTable(model);
+    JScrollPane pane = new JScrollPane(table);
+    
+    String[] tmpList = null;
+    Path currentRelativePath = Paths.get("");
+    String s = currentRelativePath.toAbsolutePath().toString()+"/bin/";
+    File directory = new File(s);
+    File scoreboard = new File(s+"scoreboard.txt"); 
+    File cosmetic = new File(s+"cosmetic.txt"); 
+    
+    Scanner scan1, scan2;
+    
+    BufferedWriter out;
+    
+    ArrayList<String> stack = new ArrayList<String>();
+    Object[] list;
+    Object[] row;
+    
+    Pattern p = Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
+    Matcher m;
+    
+    String 
+        colorLMB = "#FF0000",
+        colorMMB = "#00FFFF",
+        colorRMB = "#FFC0CB";
+    
+    String 
+        content = "",
+        tmp = "";
+    
     public LabAims() {
-        duration = 30000;
-        
         initComponents();
         
         setLayout(null);
-        enemyA = Color.RED;
-        enemyB = Color.CYAN;
-        enemyC = Color.PINK;
+        
+        model.setRowCount(0);
+        directory.mkdirs();
+        try {
+            cosmetic.createNewFile();
+            scoreboard.createNewFile();
+            scan1 = new Scanner(scoreboard);
+            
+        } catch (IOException ex) {
+            System.out.println("already printed");
+        }
+        //TODO if file dosent exist make one with default values placed
+        try {
+            scan2 = new Scanner(cosmetic);
+            while (scan2.hasNextLine()) {
+                String currLine = scan2.nextLine();
+                tmpList = currLine.split(" ");
+                if(currLine.contains("lmb")){
+                    colorLMB = tmpList[1];
+                }else if(currLine.contains("mmb")){
+                    colorMMB = tmpList[1];
+                }else if(currLine.contains("lmb")){
+                    colorRMB = tmpList[1];
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(LabAims.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        enemyA = Color.decode(colorLMB);
+        enemyB = Color.decode(colorMMB);
+        enemyC = Color.decode(colorRMB);
 
+        model.addColumn("Score");
+        model.addColumn("Player");
+        model.addColumn("Timestamp");
+        
         b1.setBackground(enemyA);
         b1.setPreferredSize(new Dimension(15,15));
         b1.setEnabled(false);
+        b1.setLocation(xAxis, yAxis);
         
         setTitle("LabAims");
         setSize(400, 400);
+        
+        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
+        table.setRowSorter(sorter);
+        
+        ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(25);
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
+        sorter.setSortKeys(sortKeys);
+        
+        Score();
+        
     }
 
     /**
@@ -86,7 +191,8 @@ public class LabAims extends javax.swing.JFrame {
 
         l2.setText("Highest Score:");
 
-        l3.setText("3:0");
+        l3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        l3.setText("Time left (seconds): 30");
 
         Play.setText("Play");
         Play.addActionListener(new java.awt.event.ActionListener() {
@@ -121,6 +227,11 @@ public class LabAims extends javax.swing.JFrame {
         Play.add(jMenuItem2);
 
         jMenuItem3.setText("Scoreboard");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
         Play.add(jMenuItem3);
 
         jMenuBar1.add(Play);
@@ -132,10 +243,15 @@ public class LabAims extends javax.swing.JFrame {
             }
         });
 
-        jMenuItem4.setText("Right Click Enemy Color");
+        jMenuItem4.setText("Set Left Click Enemy's Color");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
         Cosmetic.add(jMenuItem4);
 
-        jMenuItem5.setText("Middle Click Enemy Color");
+        jMenuItem5.setText("Set Middle Click Enemy's Color");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem5ActionPerformed(evt);
@@ -143,7 +259,12 @@ public class LabAims extends javax.swing.JFrame {
         });
         Cosmetic.add(jMenuItem5);
 
-        jMenuItem6.setText("Left Click Enemy Color");
+        jMenuItem6.setText("Set Right Click Enemy's Color");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
         Cosmetic.add(jMenuItem6);
 
         jMenuBar1.add(Cosmetic);
@@ -165,16 +286,16 @@ public class LabAims extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(126, 126, 126)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(l2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(l1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap()
+                        .addComponent(l1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(163, 163, 163)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(l3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap())
+                        .addContainerGap()
+                        .addComponent(l2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(192, 192, 192)
+                        .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(193, Short.MAX_VALUE))
+            .addComponent(l3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -185,22 +306,63 @@ public class LabAims extends javax.swing.JFrame {
                 .addComponent(l2)
                 .addGap(18, 18, 18)
                 .addComponent(l3)
-                .addGap(50, 50, 50)
+                .addGap(64, 64, 64)
                 .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(223, Short.MAX_VALUE))
+                .addContainerGap(209, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    public void GameOver(){
-        l1.setText("Current Score: "+scoreCurrent);
-        
+    public void Score(){
+        while (scan1.hasNextLine()) {
+            try{
+                tmpList = scan1.nextLine().split(" ");
+                row = new Object[] {tmpList[0], tmpList[1], tmpList[2]};
+                stack.add(tmpList[0]);
+            }catch(Exception e){
+
+            }
+        }
+        list = stack.toArray();
+        Arrays.sort(list, Collections.reverseOrder());
+        scoreHighest = Integer.parseInt(list[0].toString());
+        l2.setText("Highest Score: "+scoreHighest);
+    }
+    
+    private void GameOver() {
+        System.out.println(count/10+":"+count%10);
+        l3.setText(String.valueOf("Time left (seconds): "+count/10+""+count%10));
+        if(count == 0){
+            t1.cancel();
+            buttonState(false);
+            b1.setLocation(xAxis = 185, yAxis = 135);
+            l3.setText("Times Up!");
+            Score();
+            try {
+                String pattern = "YYYYMMddHHmm";
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+                String date = simpleDateFormat.format(new Date());
+                out = new BufferedWriter(new FileWriter(scoreboard, true));
+                if(scoreCurrent > 0){
+                    out.append("\n"+scoreCurrent+" "+name+" "+date);
+                    out.flush();
+                }
+                
+            } catch (Exception e) {
+            }
+        }
+    }
+    
+    public void buttonState(boolean state){
+        b1.setSelected(state);
+        b1.setEnabled(state);
+        b1.setFocusable(state);
     }
     
     private void b1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b1MousePressed
         // TODO add your handling code here:
-        xAxis = ThreadLocalRandom.current().nextInt(50, 350);
+        xAxis = ThreadLocalRandom.current().nextInt(50, 350); 
         yAxis = ThreadLocalRandom.current().nextInt(50, 285);
         color = ThreadLocalRandom.current().nextInt(0, 3);  
         System.out.println(color);
@@ -252,15 +414,10 @@ public class LabAims extends javax.swing.JFrame {
             pause = false;
         }
         
-        count = 31;
+        count = 5;
         if(scoreCurrent > 0){
-            if(scoreCurrent>scoreHighest){
-                scoreHighest = scoreCurrent;
-            }
-            scoreCurrent = 0;
-            l1.setText("Current Score: "+scoreCurrent);
-            l2.setText("Highest Score: "+scoreHighest);
-        }else if(scoreCurrent == 0){
+            GameOver();
+        }else{
             scoreCurrent = 0;
         }
         
@@ -278,13 +435,7 @@ public class LabAims extends javax.swing.JFrame {
                 if(pause == false){
                    count--; 
                 }
-                System.out.println(count/10+":"+count%10);
-                l3.setText(String.valueOf(count/10+":"+count%10));
-                if(count == 0){
-                    t1.cancel();
-                    GameOver();
-                    b1.setEnabled(false);
-                }
+                GameOver();
             }
         }, 0, 1_000);
         
@@ -294,21 +445,44 @@ public class LabAims extends javax.swing.JFrame {
         // TODO add your handling code here:
         
     }//GEN-LAST:event_jMenuItem1MenuKeyPressed
-
+    
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
         if(pause == true){
             pause = false;
-            b1.setEnabled(true);
+            buttonState(true);
             
         }else if(pause == false){
             pause = true;
-            b1.setEnabled(false);
+            buttonState(false);
         }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        // TODO add your handling code here:
+        try{
+            tmp = JOptionPane.showInputDialog("What Hex Color?");
+            m = p.matcher(tmp);
+            scan2 = new Scanner(cosmetic);
+            if(m.matches()){
+                enemyB = Color.decode(tmp);
+                while (scan2.hasNextLine()) {
+                    content = content.concat(scan2.nextLine() + "\n");
+                }
+                try{
+                    content = content.replaceAll("mmb "+colorMMB, "mmb "+tmp);
+                    out = new BufferedWriter(new FileWriter(cosmetic));
+                    System.out.println(content);
+                    out.write(content);
+                    out.close();
+                    colorMMB = tmp;
+                } catch (Exception e) {
+                }
+            }else{
+            }
+        }catch(Exception e){
+            
+        }
+        //call an update tutorial
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayActionPerformed
@@ -322,6 +496,87 @@ public class LabAims extends javax.swing.JFrame {
     private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        // TODO add your handling code here:
+        model.setRowCount(0);
+        directory.mkdirs();
+        try {
+            scoreboard.createNewFile();
+        } catch (IOException ex) {
+            System.out.println("already printed");
+        }
+        try {
+            scan1 = new Scanner(scoreboard);
+            while (scan1.hasNextLine()) {
+                try{
+                    tmpList = scan1.nextLine().split(" ");
+                    Object[] row = new Object[] {tmpList[0], tmpList[1], tmpList[2]};
+//                    System.out.print(Arrays.toString(row));
+                    model.addRow(row);
+                }catch(Exception e){
+                    
+                }
+            }
+            
+        } catch (Exception e) {
+        }
+        
+        //ToDo set title for this joption or just make it a Jframe
+        JOptionPane.showMessageDialog(null, pane);
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        try{
+            tmp = JOptionPane.showInputDialog("What Hex Color?");
+            m = p.matcher(tmp);
+            scan2 = new Scanner(cosmetic);
+            if(m.matches()){
+                enemyB = Color.decode(tmp);
+                while (scan2.hasNextLine()) {
+                    content = content.concat(scan2.nextLine() + "\n");
+                }
+                try{
+                    content = content.replaceAll("mmb "+colorLMB, "mmb "+tmp);
+                    out = new BufferedWriter(new FileWriter(cosmetic));
+                    System.out.println(content);
+                    out.write(content);
+                    out.close();
+                    colorLMB = tmp;
+                } catch (Exception e) {
+                }
+            }else{
+            }
+        }catch(Exception e){
+            
+        }
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        try{
+            tmp = JOptionPane.showInputDialog("What Hex Color?");
+            m = p.matcher(tmp);
+            scan2 = new Scanner(cosmetic);
+            if(m.matches()){
+                enemyB = Color.decode(tmp);
+                while (scan2.hasNextLine()) {
+                    content = content.concat(scan2.nextLine() + "\n");
+                }
+                try{
+                    content = content.replaceAll("mmb "+colorRMB, "mmb "+tmp);
+                    out = new BufferedWriter(new FileWriter(cosmetic));
+                    System.out.println(content);
+                    out.write(content);
+                    out.close();
+                    colorRMB = tmp;
+                } catch (Exception e) {
+                }
+            }else{
+            }
+        }catch(Exception e){
+            
+        }
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     /**
      * @param args the command line arguments

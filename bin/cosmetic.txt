@@ -1,0 +1,3 @@
+lmb #FF0000
+mmb #00FF00
+rmb #FFC0CB
