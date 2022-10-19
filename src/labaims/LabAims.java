@@ -75,7 +75,7 @@ public class LabAims extends javax.swing.JFrame {
     
     BufferedWriter out;
     
-    ArrayList<String> stack = new ArrayList<String>();
+    ArrayList<Integer> stack = new ArrayList<Integer>();
     Object[] list;
     Object[] row;
     
@@ -138,18 +138,10 @@ public class LabAims extends javax.swing.JFrame {
         b1.setEnabled(false);
         b1.setLocation(xAxis, yAxis);
         
-        setTitle("LabAims");
-        setSize(400, 400);
-        
-        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
-        table.setRowSorter(sorter);
-        
-        ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(25);
-        sortKeys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
-        sorter.setSortKeys(sortKeys);
-        
         Score();
         
+        setTitle("LabAims");
+        setSize(400, 400);
     }
 
     /**
@@ -283,6 +275,7 @@ public class LabAims extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(l3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -295,7 +288,6 @@ public class LabAims extends javax.swing.JFrame {
                         .addGap(192, 192, 192)
                         .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(193, Short.MAX_VALUE))
-            .addComponent(l3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -315,18 +307,23 @@ public class LabAims extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     public void Score(){
+        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
+        table.setRowSorter(sorter);
+        ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(25);
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
+        sorter.setSortKeys(sortKeys);
         while (scan1.hasNextLine()) {
             try{
                 tmpList = scan1.nextLine().split(" ");
                 row = new Object[] {tmpList[0], tmpList[1], tmpList[2]};
-                stack.add(tmpList[0]);
+                stack.add(Integer.valueOf(tmpList[0]));
             }catch(Exception e){
 
             }
         }
-        list = stack.toArray();
-        Arrays.sort(list, Collections.reverseOrder());
-        scoreHighest = Integer.parseInt(list[0].toString());
+        Collections.sort(stack, Collections.reverseOrder());
+        System.out.println(Arrays.toString(stack.toArray()));
+        scoreHighest = stack.get(0);
         l2.setText("Highest Score: "+scoreHighest);
     }
     
@@ -348,7 +345,6 @@ public class LabAims extends javax.swing.JFrame {
                     out.append("\n"+scoreCurrent+" "+name+" "+date);
                     out.flush();
                 }
-                
             } catch (Exception e) {
             }
         }
@@ -414,12 +410,10 @@ public class LabAims extends javax.swing.JFrame {
             pause = false;
         }
         
-        count = 5;
-        if(scoreCurrent > 0){
-            GameOver();
-        }else{
-            scoreCurrent = 0;
-        }
+        count = 30;
+        l1.setText("Current Score: ");
+        scoreCurrent = 0;
+        Score();
         
         try{
             t1.cancel();
@@ -511,8 +505,7 @@ public class LabAims extends javax.swing.JFrame {
             while (scan1.hasNextLine()) {
                 try{
                     tmpList = scan1.nextLine().split(" ");
-                    Object[] row = new Object[] {tmpList[0], tmpList[1], tmpList[2]};
-//                    System.out.print(Arrays.toString(row));
+                    Object[] row = new Object[] {Integer.valueOf(tmpList[0]), tmpList[1], tmpList[2]};
                     model.addRow(row);
                 }catch(Exception e){
                     
