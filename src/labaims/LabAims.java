@@ -76,7 +76,6 @@ public class LabAims extends javax.swing.JFrame {
     Scanner scan1, scan2;
     
     BufferedWriter write;
-    BufferedReader read;
     
     ArrayList<Integer> stack = new ArrayList<Integer>();
     Object[] list;
@@ -126,7 +125,7 @@ public class LabAims extends javax.swing.JFrame {
         b3.setPreferredSize(new Dimension(15,15));
         b4.setPreferredSize(new Dimension(15,15));
         
-        colorState();
+        cosmeticState();
         Score();
         
         setTitle("LabAims");
@@ -412,26 +411,27 @@ public class LabAims extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     public void Score(){
-        datasetA = null;
-        
-        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
-        table.setRowSorter(sorter);
-        ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(25);
-        sortKeys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
-        sorter.setSortKeys(sortKeys);
-        
-        while (scan1.hasNextLine()) {
-            try{
-                scanned = scan1.nextLine().split(" ");
-                datasetA = new Object[] {Integer.valueOf(scanned[0]), scanned[1], scanned[2]};
-                stack.add(Integer.valueOf(scanned[0]));
-            }catch(Exception e){
-                
+        try{
+            datasetA = null;
+            scan1 = new Scanner(scoreboard);
+            if(scan1.hasNextLine()==true){
+                while (scan1.hasNextLine()) {
+                    try{
+                        scanned = scan1.nextLine().split(" ");
+                        datasetA = new Object[] {Integer.valueOf(scanned[0]), scanned[1], scanned[2]};
+                        stack.add(Integer.valueOf(scanned[0]));
+                    }catch(Exception e){
+
+                    }
+                }
+                Collections.sort(stack, Collections.reverseOrder());
+                scoreHighest = stack.get(0);
+                l2.setText("Highest Score: "+scoreHighest);
             }
+        }catch(Exception e){
+            
         }
-        Collections.sort(stack, Collections.reverseOrder());
-        scoreHighest = stack.get(0);
-        l2.setText("Highest Score: "+scoreHighest);
+        System.out.println(scan1.hasNextLine());
     }
     
     private void GameOver() {
@@ -441,7 +441,6 @@ public class LabAims extends javax.swing.JFrame {
             buttonState(false);
             b1.setLocation(xAxis = 195, yAxis = 135);
             l3.setText("Times Up!");
-            Score();
             try {
                 String pattern = "YYYYMMddHHmm";
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
@@ -453,27 +452,30 @@ public class LabAims extends javax.swing.JFrame {
                 }
             } catch (Exception e) {
             }
+            Score();
         }
     }
     
-    public void colorState(){
+    public void cosmeticState(){
         try{
             scan2 = new Scanner(cosmetic);
             if(scan2.hasNextLine()==false){
                 write = new BufferedWriter(new FileWriter(cosmetic)); 
-                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB);
+                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\nname annonymous");
                 write.close();
             }else{
                 scan2 = new Scanner(cosmetic);
                 while (scan2.hasNextLine()) {
                     String currLine = scan2.nextLine();
                     scanned = currLine.split(" ");
-                    if(currLine.contains("lmb")){
+                    if(currLine.contains("lmb ")){
                         colorLMB = scanned[1];
-                    }else if(currLine.contains("mmb")){
+                    }else if(currLine.contains("mmb ")){
                         colorMMB = scanned[1];
-                    }else if(currLine.contains("rmb")){
+                    }else if(currLine.contains("rmb ")){
                         colorRMB = scanned[1];
+                    }else if(currLine.contains("name ")){
+                        name = scanned[1];
                     }
                 }
             }
@@ -483,7 +485,9 @@ public class LabAims extends javax.swing.JFrame {
         enemyA = Color.decode(colorLMB);
         enemyB = Color.decode(colorMMB);
         enemyC = Color.decode(colorRMB);
-
+        
+        l8.setText(name);
+        
         b2.setBackground(enemyA);
         b3.setBackground(enemyB);
         b4.setBackground(enemyC);
@@ -512,7 +516,6 @@ public class LabAims extends javax.swing.JFrame {
     }
     
     private void b1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b1MousePressed
-        // TODO add your handling code here:
         xAxis = ThreadLocalRandom.current().nextInt(50, 350); 
         yAxis = ThreadLocalRandom.current().nextInt(50, 285);
         
@@ -622,7 +625,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
-        colorState();
+        cosmeticState();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayActionPerformed
@@ -687,7 +690,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
-        colorState();
+        cosmeticState();
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
@@ -713,7 +716,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
-        colorState();
+        cosmeticState();
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void b2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b2MousePressed
@@ -741,8 +744,24 @@ public class LabAims extends javax.swing.JFrame {
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
         // TODO add your handling code here:
-        name = JOptionPane.showInputDialog("Name Please?");
-        l8.setText(name);
+        try{
+            tmp = JOptionPane.showInputDialog("Name Please?");
+            scan2 = new Scanner(cosmetic);
+            while (scan2.hasNextLine()) {
+                content = content.concat(scan2.nextLine() + "\n");
+            }
+            try{
+                content = content.replaceAll("name "+name, "name "+tmp);
+                write = new BufferedWriter(new FileWriter(cosmetic));
+                write.write(content);
+                write.close();
+                name = tmp;
+            } catch (Exception e) {
+            }
+        }catch(Exception e){
+            
+        }
+        cosmeticState();
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     /**
