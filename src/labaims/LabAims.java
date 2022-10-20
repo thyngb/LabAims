@@ -78,6 +78,7 @@ public class LabAims extends javax.swing.JFrame {
     ArrayList<Integer> stack = new ArrayList<Integer>();
     Object[] list;
     Object[] row;
+    Object[] tmpRow;
     
     Pattern p = Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
     Matcher m;
@@ -96,6 +97,10 @@ public class LabAims extends javax.swing.JFrame {
         
         setLayout(null);
         
+        model.addColumn("Score");
+        model.addColumn("Player");
+        model.addColumn("Timestamp");
+        
         model.setRowCount(0);
         directory.mkdirs();
         try {
@@ -106,7 +111,6 @@ public class LabAims extends javax.swing.JFrame {
         } catch (IOException ex) {
             System.out.println("already printed");
         }
-        //TODO if file dosent exist make one with default values placed
         try {
             scan2 = new Scanner(cosmetic);
             while (scan2.hasNextLine()) {
@@ -129,15 +133,19 @@ public class LabAims extends javax.swing.JFrame {
         enemyB = Color.decode(colorMMB);
         enemyC = Color.decode(colorRMB);
 
-        model.addColumn("Score");
-        model.addColumn("Player");
-        model.addColumn("Timestamp");
+        
         
         b1.setBackground(enemyA);
         b1.setPreferredSize(new Dimension(15,15));
         b1.setEnabled(false);
         b1.setLocation(xAxis, yAxis);
         
+        b2.setBackground(enemyA);
+        b2.setPreferredSize(new Dimension(15,15));
+        b3.setBackground(enemyB);
+        b3.setPreferredSize(new Dimension(15,15));
+        b4.setBackground(enemyC);
+        b4.setPreferredSize(new Dimension(15,15));
         Score();
         
         setTitle("LabAims");
@@ -153,6 +161,16 @@ public class LabAims extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        help = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        b2 = new javax.swing.JButton();
+        l4 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        b3 = new javax.swing.JButton();
+        l5 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        b4 = new javax.swing.JButton();
+        l6 = new javax.swing.JLabel();
         l1 = new javax.swing.JLabel();
         b1 = new javax.swing.JButton();
         l2 = new javax.swing.JLabel();
@@ -166,10 +184,76 @@ public class LabAims extends javax.swing.JFrame {
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
-        jMenu1 = new javax.swing.JMenu();
+        Help = new javax.swing.JMenu();
+        jMenuItem7 = new javax.swing.JMenuItem();
+
+        help.setMinimumSize(new java.awt.Dimension(150, 75));
+        help.setPreferredSize(new java.awt.Dimension(300, 75));
+        help.setLayout(new java.awt.GridLayout(3, 2));
+
+        b2.setFocusable(false);
+        b2.setMaximumSize(new java.awt.Dimension(15, 15));
+        b2.setMinimumSize(new java.awt.Dimension(15, 15));
+        b2.setPreferredSize(new java.awt.Dimension(15, 15));
+        b2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                b2MousePressed(evt);
+            }
+        });
+        b2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b2ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(b2);
+
+        help.add(jPanel1);
+
+        l4.setText("left-click enemies");
+        l4.setMaximumSize(new java.awt.Dimension(150, 16));
+        l4.setMinimumSize(new java.awt.Dimension(150, 16));
+        l4.setPreferredSize(new java.awt.Dimension(150, 16));
+        help.add(l4);
+
+        b3.setFocusable(false);
+        b3.setMaximumSize(new java.awt.Dimension(15, 15));
+        b3.setMinimumSize(new java.awt.Dimension(15, 15));
+        b3.setPreferredSize(new java.awt.Dimension(15, 15));
+        b3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                b3MousePressed(evt);
+            }
+        });
+        jPanel2.add(b3);
+
+        help.add(jPanel2);
+
+        l5.setText("middle-click enemies");
+        l5.setMaximumSize(new java.awt.Dimension(150, 16));
+        l5.setMinimumSize(new java.awt.Dimension(150, 16));
+        l5.setPreferredSize(new java.awt.Dimension(150, 16));
+        help.add(l5);
+
+        b4.setFocusable(false);
+        b4.setMaximumSize(new java.awt.Dimension(15, 15));
+        b4.setMinimumSize(new java.awt.Dimension(15, 15));
+        b4.setPreferredSize(new java.awt.Dimension(15, 15));
+        b4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                b4MousePressed(evt);
+            }
+        });
+        jPanel3.add(b4);
+
+        help.add(jPanel3);
+
+        l6.setText("right-click enemies");
+        l6.setMaximumSize(new java.awt.Dimension(150, 16));
+        l6.setMinimumSize(new java.awt.Dimension(150, 16));
+        l6.setPreferredSize(new java.awt.Dimension(150, 16));
+        help.add(l6);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(400, 400));
         setSize(new java.awt.Dimension(400, 400));
 
         l1.setText("Current Score:");
@@ -261,13 +345,22 @@ public class LabAims extends javax.swing.JFrame {
 
         jMenuBar1.add(Cosmetic);
 
-        jMenu1.setText("Help");
-        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+        Help.setText("Help");
+        Help.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenu1ActionPerformed(evt);
+                HelpActionPerformed(evt);
             }
         });
-        jMenuBar1.add(jMenu1);
+
+        jMenuItem7.setText("Guide");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        Help.add(jMenuItem7);
+
+        jMenuBar1.add(Help);
 
         setJMenuBar(jMenuBar1);
 
@@ -280,14 +373,13 @@ public class LabAims extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(l1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(l1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(l2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(l2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(192, 192, 192)
+                        .addGap(187, 187, 187)
                         .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(193, Short.MAX_VALUE))
+                .addContainerGap(206, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -296,29 +388,32 @@ public class LabAims extends javax.swing.JFrame {
                 .addComponent(l1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(l2)
-                .addGap(18, 18, 18)
+                .addGap(41, 41, 41)
                 .addComponent(l3)
-                .addGap(64, 64, 64)
+                .addGap(38, 38, 38)
                 .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(209, Short.MAX_VALUE))
+                .addContainerGap(212, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
     public void Score(){
+        row = null;
+        
         TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
         table.setRowSorter(sorter);
         ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(25);
         sortKeys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
         sorter.setSortKeys(sortKeys);
+        
         while (scan1.hasNextLine()) {
             try{
                 tmpList = scan1.nextLine().split(" ");
-                row = new Object[] {tmpList[0], tmpList[1], tmpList[2]};
+                row = new Object[] {Integer.valueOf(tmpList[0]), tmpList[1], tmpList[2]};
                 stack.add(Integer.valueOf(tmpList[0]));
             }catch(Exception e){
-
+                
             }
         }
         Collections.sort(stack, Collections.reverseOrder());
@@ -348,6 +443,31 @@ public class LabAims extends javax.swing.JFrame {
             } catch (Exception e) {
             }
         }
+    }
+    
+    public void colorState(){
+        try {
+            scan2 = new Scanner(cosmetic);
+            while (scan2.hasNextLine()) {
+                String currLine = scan2.nextLine();
+                tmpList = currLine.split(" ");
+                if(currLine.contains("lmb")){
+                    colorLMB = tmpList[1];
+                }else if(currLine.contains("mmb")){
+                    colorMMB = tmpList[1];
+                }else if(currLine.contains("lmb")){
+                    colorRMB = tmpList[1];
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(LabAims.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        b2.setBackground(enemyA);
+        b3.setBackground(enemyB);
+        b4.setBackground(enemyC);
+        enemyA = Color.decode(colorLMB);
+        enemyB = Color.decode(colorMMB);
+        enemyC = Color.decode(colorRMB);
     }
     
     public void buttonState(boolean state){
@@ -476,6 +596,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
+        colorState();
         //call an update tutorial
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
@@ -487,14 +608,17 @@ public class LabAims extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_CosmeticActionPerformed
 
-    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+    private void HelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HelpActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jMenu1ActionPerformed
+
+    }//GEN-LAST:event_HelpActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
         model.setRowCount(0);
         directory.mkdirs();
+        ArrayList<Object> tab = new ArrayList<Object>();
+        row = null;
         try {
             scoreboard.createNewFile();
         } catch (IOException ex) {
@@ -505,17 +629,16 @@ public class LabAims extends javax.swing.JFrame {
             while (scan1.hasNextLine()) {
                 try{
                     tmpList = scan1.nextLine().split(" ");
-                    Object[] row = new Object[] {Integer.valueOf(tmpList[0]), tmpList[1], tmpList[2]};
+                    row = new Object[] {new Integer(Integer.valueOf(tmpList[0])), tmpList[1], tmpList[2]};
                     model.addRow(row);
                 }catch(Exception e){
                     
                 }
             }
-            
         } catch (Exception e) {
         }
-        
-        //ToDo set title for this joption or just make it a Jframe
+        System.out.print(model.getDataVector());
+        table.setAutoCreateRowSorter(true);
         JOptionPane.showMessageDialog(null, pane);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
@@ -543,6 +666,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
+        colorState();
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
@@ -569,7 +693,31 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
+        colorState();
     }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void b2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b2MousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_b2MousePressed
+
+    private void b3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b3MousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_b3MousePressed
+
+    private void b4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b4MousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_b4MousePressed
+
+    private void b2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_b2ActionPerformed
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+        // TODO add your handling code here:
+        
+        JOptionPane.showMessageDialog(null, help);
+        
+    }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -609,9 +757,13 @@ public class LabAims extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu Cosmetic;
+    private javax.swing.JMenu Help;
     private javax.swing.JMenu Play;
     private javax.swing.JButton b1;
-    private javax.swing.JMenu jMenu1;
+    private javax.swing.JButton b2;
+    private javax.swing.JButton b3;
+    private javax.swing.JButton b4;
+    private javax.swing.JPanel help;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
@@ -619,8 +771,15 @@ public class LabAims extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel l1;
     private javax.swing.JLabel l2;
     private javax.swing.JLabel l3;
+    private javax.swing.JLabel l4;
+    private javax.swing.JLabel l5;
+    private javax.swing.JLabel l6;
     // End of variables declaration//GEN-END:variables
 }
