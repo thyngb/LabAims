@@ -6,41 +6,28 @@
 package labaims;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.List;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.SortOrder;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -73,14 +60,14 @@ public class LabAims extends javax.swing.JFrame {
     File scoreboard = new File(s+"scoreboard.txt"); 
     File cosmetic = new File(s+"cosmetic.txt"); 
     
-    Scanner scan1, scan2;
+    Scanner read;
     
     BufferedWriter write;
     
     ArrayList<Integer> stack = new ArrayList<Integer>();
-    Object[] list;
-    Object[] datasetA;
-    Object[] tmpRow;
+    Object[][] datasetA;
+    Object[] column;
+    Object A, B;
     
     Pattern p = Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
     Matcher m;
@@ -101,35 +88,30 @@ public class LabAims extends javax.swing.JFrame {
         
         setLayout(null);
         
-        model.addColumn("Score");
-        model.addColumn("Player");
-        model.addColumn("Timestamp");
         
-        model.setRowCount(0);
         directory.mkdirs();
         try {
             cosmetic.createNewFile();
             scoreboard.createNewFile();
-            scan1 = new Scanner(scoreboard);
-            
+            read = new Scanner(scoreboard);
         } catch (IOException ex) {
         }
         
+        model.setRowCount(0);
+        
+        column = new Object[]{"score", "player", "data"};
+        
         l8.setText(null);
         
-        b1.setPreferredSize(new Dimension(15,15));
-        b1.setEnabled(false);
         b1.setLocation(xAxis, yAxis);
         
-        b2.setPreferredSize(new Dimension(15,15));
-        b3.setPreferredSize(new Dimension(15,15));
-        b4.setPreferredSize(new Dimension(15,15));
-        
-        cosmeticState();
-        Score();
+        model.setDataVector(datasetA,column);
         
         setTitle("LabAims");
         setSize(400, 400);
+        
+        cosmeticState();
+        scoreBoard();
     }
 
     /**
@@ -410,28 +392,63 @@ public class LabAims extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    public void Score(){
-        try{
-            datasetA = null;
-            scan1 = new Scanner(scoreboard);
-            if(scan1.hasNextLine()==true){
-                while (scan1.hasNextLine()) {
-                    try{
-                        scanned = scan1.nextLine().split(" ");
-                        datasetA = new Object[] {Integer.valueOf(scanned[0]), scanned[1], scanned[2]};
-                        stack.add(Integer.valueOf(scanned[0]));
-                    }catch(Exception e){
-
-                    }
-                }
-                Collections.sort(stack, Collections.reverseOrder());
-                scoreHighest = stack.get(0);
-                l2.setText("Highest Score: "+scoreHighest);
-            }
-        }catch(Exception e){
-            
+    private void updateGUI(){
+        l2.setText("Highest Score: "+scoreHighest);
+    }
+    
+    private void scoreBoard(){
+        model.setRowCount(0);
+        scanned = null;
+        int x = 0, y = 0;
+        try {
+            scoreboard.createNewFile();
+        } catch (IOException ex) {
         }
-        System.out.println(scan1.hasNextLine());
+        try {
+            read = new Scanner(scoreboard);
+            for(x = 0; read.hasNextLine(); x++){
+                x = x;
+                scanned = read.nextLine().split(" ");
+                y = scanned.length;
+            }
+        } catch (Exception e) {
+        }
+        datasetA = new Object[x][y];
+        
+        try {
+            read = new Scanner(scoreboard);
+            for(x = 0; read.hasNextLine(); x++){
+                try{
+                    scanned = read.nextLine().split(" ");
+                    for(y = 0; y < scanned.length; y++){
+                        datasetA[x][y] = scanned[y];
+                    }
+                }catch(Exception e){
+                    
+                }
+            }
+        } catch (Exception e) {
+        }
+        scoreSort();
+    }
+    
+    private void scoreSort() {
+        Arrays.sort(datasetA, new Comparator<Object[]>() {
+            @Override
+            public int compare(Object[] a, Object[] b) {
+                A = a[0];
+                if(A.equals("")) A=0;
+                B = b[0];
+                if(B.equals("")) B=0;
+                return Integer.compare(Integer.valueOf(B.toString()), Integer.valueOf(A.toString()));
+            }
+        });
+        try{
+            scoreHighest = Integer.valueOf(datasetA[0][0].toString());
+            updateGUI();
+        }catch(Exception e){
+            l2.setText("Highest Score: ");
+        }
     }
     
     private void GameOver() {
@@ -452,21 +469,21 @@ public class LabAims extends javax.swing.JFrame {
                 }
             } catch (Exception e) {
             }
-            Score();
+            scoreBoard();
         }
     }
     
     public void cosmeticState(){
         try{
-            scan2 = new Scanner(cosmetic);
-            if(scan2.hasNextLine()==false){
+            read = new Scanner(cosmetic);
+            if(read.hasNextLine()==false){
                 write = new BufferedWriter(new FileWriter(cosmetic)); 
-                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\nname annonymous");
+                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\nname "+name);
                 write.close();
             }else{
-                scan2 = new Scanner(cosmetic);
-                while (scan2.hasNextLine()) {
-                    String currLine = scan2.nextLine();
+                read = new Scanner(cosmetic);
+                while (read.hasNextLine()) {
+                    String currLine = read.nextLine();
                     scanned = currLine.split(" ");
                     if(currLine.contains("lmb ")){
                         colorLMB = scanned[1];
@@ -563,7 +580,7 @@ public class LabAims extends javax.swing.JFrame {
         count = 30;
         l1.setText("Current Score: ");
         scoreCurrent = 0;
-        Score();
+        scoreBoard();
         colorRandom();
         try{
             t1.cancel();
@@ -606,11 +623,11 @@ public class LabAims extends javax.swing.JFrame {
         try{
             tmp = JOptionPane.showInputDialog("What Hex Code Color? (Example: #00FFFF)");
             m = p.matcher(tmp);
-            scan2 = new Scanner(cosmetic);
+            read = new Scanner(cosmetic);
             if(m.matches()){
                 enemyB = Color.decode(tmp);
-                while (scan2.hasNextLine()) {
-                    content = content.concat(scan2.nextLine() + "\n");
+                while (read.hasNextLine()) {
+                    content = content.concat(read.nextLine() + "\n");
                 }
                 try{
                     content = content.replaceAll("mmb "+colorMMB, "mmb "+tmp);
@@ -643,27 +660,9 @@ public class LabAims extends javax.swing.JFrame {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
-        model.setRowCount(0);
-        scanned = null;
-        datasetA = null;
-        try {
-            scoreboard.createNewFile();
-        } catch (IOException ex) {
-        }
-        try {
-            scan1 = new Scanner(scoreboard);
-            while (scan1.hasNextLine()) {
-                try{
-                    scanned = scan1.nextLine().split(" ");
-                    datasetA = new Object[] {new Integer(scanned[0]),scanned[1],scanned[2]};
-                    model.addRow(datasetA);
-                }catch(Exception e){
-                    
-                }
-            }
-        } catch (Exception e) {
-        }
-        table.setAutoCreateRowSorter(true);
+        scoreBoard();
+        model.setDataVector(datasetA,column);
+        table.setModel(model);
         JOptionPane.showMessageDialog(null, pane);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
@@ -671,11 +670,11 @@ public class LabAims extends javax.swing.JFrame {
         try{
             tmp = JOptionPane.showInputDialog("What Hex Code Color? (Example: #00FFFF)");
             m = p.matcher(tmp);
-            scan2 = new Scanner(cosmetic);
+            read = new Scanner(cosmetic);
             if(m.matches()){
                 enemyA = Color.decode(tmp);
-                while (scan2.hasNextLine()) {
-                    content = content.concat(scan2.nextLine() + "\n");
+                while (read.hasNextLine()) {
+                    content = content.concat(read.nextLine() + "\n");
                 }
                 try{
                     content = content.replaceAll("lmb "+colorLMB, "lmb "+tmp);
@@ -697,11 +696,11 @@ public class LabAims extends javax.swing.JFrame {
         try{
             tmp = JOptionPane.showInputDialog("What Hex Code Color? (Example: #00FFFF)");
             m = p.matcher(tmp);
-            scan2 = new Scanner(cosmetic);
+            read = new Scanner(cosmetic);
             if(m.matches()){
                 enemyC = Color.decode(tmp);
-                while (scan2.hasNextLine()) {
-                    content = content.concat(scan2.nextLine() + "\n");
+                while (read.hasNextLine()) {
+                    content = content.concat(read.nextLine() + "\n");
                 }
                 try{
                     content = content.replaceAll("rmb "+colorRMB, "rmb "+tmp);
@@ -746,9 +745,9 @@ public class LabAims extends javax.swing.JFrame {
         // TODO add your handling code here:
         try{
             tmp = JOptionPane.showInputDialog("Name Please?");
-            scan2 = new Scanner(cosmetic);
-            while (scan2.hasNextLine()) {
-                content = content.concat(scan2.nextLine() + "\n");
+            read = new Scanner(cosmetic);
+            while (read.hasNextLine()) {
+                content = content.concat(read.nextLine() + "\n");
             }
             try{
                 content = content.replaceAll("name "+name, "name "+tmp);
