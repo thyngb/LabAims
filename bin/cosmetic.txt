@@ -1,3 +1,5 @@
 lmb #FF0000
 mmb #00FFFF
 rmb #FFC0CB
+dodge dodge me!
+name annonymous!

@@ -35,14 +35,24 @@ import javax.swing.table.DefaultTableModel;
  */
 public class LabAims extends javax.swing.JFrame {
     
-    String name = "annonymous";
+    String name = "annonymous", dodge = "dodge me!";
     
-    Timer t1;
+    Timer t1, t2;
     int 
-        xAxis = 195, yAxis = 135, color, duration, count=30,
-        scoreCurrent = 0, scoreHighest = 0;
+        xAxis_b1, yAxis_b1, 
+        xAxis_l9, yAxis_19,
+        xAxis_l10, yAxis_l10, 
+        xAxis_l13, yAxis_l13, 
+        speed_l9, speed_l10, speed_l13,
+        random, random_l9, random_l10, random_l13,
+        duration, 
+        count=30,
+        scoreCurrent = 0, 
+        scoreHighest = 0;
     
-    boolean pause = false, start = false;
+    boolean 
+        pause = true, 
+        start = false;
     
     Color
         enemyA,
@@ -63,7 +73,6 @@ public class LabAims extends javax.swing.JFrame {
     Scanner read;
     
     BufferedWriter write;
-    BufferedReader read;
     
     ArrayList<Integer> stack = new ArrayList<Integer>();
     Object[][] datasetA;
@@ -89,7 +98,6 @@ public class LabAims extends javax.swing.JFrame {
         
         setLayout(null);
         
-        
         directory.mkdirs();
         try {
             cosmetic.createNewFile();
@@ -98,30 +106,17 @@ public class LabAims extends javax.swing.JFrame {
         } catch (IOException ex) {
         }
         
-        model.setRowCount(0);
-        
         column = new Object[]{"score", "player", "data"};
         
-        l8.setText(null);
+        refreshGUI();
         
-        b1.setLocation(xAxis, yAxis);
-        
-<<<<<<< HEAD
+        model.setRowCount(0);
         model.setDataVector(datasetA,column);
-=======
-        b2.setPreferredSize(new Dimension(15,15));
-        b3.setPreferredSize(new Dimension(15,15));
-        b4.setPreferredSize(new Dimension(15,15));
-        
-        colorState();
-        Score();
->>>>>>> parent of 130796a (d2022-10-21.t0122)
         
         setTitle("LabAims");
         setSize(400, 400);
         
-        cosmeticState();
-        scoreBoard();
+        
     }
 
     /**
@@ -145,15 +140,23 @@ public class LabAims extends javax.swing.JFrame {
         b4 = new javax.swing.JButton();
         l7 = new javax.swing.JLabel();
         l8 = new javax.swing.JLabel();
+        l9 = new javax.swing.JLabel();
+        l10 = new javax.swing.JLabel();
+        l11 = new javax.swing.JLabel();
+        l12 = new javax.swing.JLabel();
+        l13 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         Play = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem10 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         Cosmetic = new javax.swing.JMenu();
+        jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
         Help = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
@@ -176,7 +179,7 @@ public class LabAims extends javax.swing.JFrame {
         l3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         l3.setText("Time left (seconds): 30");
 
-        l4.setText("left-click enemies");
+        l4.setText("left-click enemies:");
         l4.setMaximumSize(new java.awt.Dimension(150, 16));
         l4.setMinimumSize(new java.awt.Dimension(150, 16));
         l4.setPreferredSize(new java.awt.Dimension(150, 16));
@@ -230,6 +233,37 @@ public class LabAims extends javax.swing.JFrame {
 
         l8.setText("\"\"");
 
+        l9.setText("dodge me!");
+        l9.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                l9MouseEntered(evt);
+            }
+        });
+
+        l10.setText("dodge me!");
+        l10.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                l10MouseEntered(evt);
+            }
+        });
+
+        l11.setText("dodge enemies:");
+        l11.setMaximumSize(new java.awt.Dimension(150, 16));
+        l11.setMinimumSize(new java.awt.Dimension(150, 16));
+        l11.setPreferredSize(new java.awt.Dimension(150, 16));
+
+        l12.setText("\"\"");
+        l12.setMaximumSize(new java.awt.Dimension(150, 16));
+        l12.setMinimumSize(new java.awt.Dimension(150, 16));
+        l12.setPreferredSize(new java.awt.Dimension(150, 16));
+
+        l13.setText("dodge me!");
+        l13.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                l13MouseEntered(evt);
+            }
+        });
+
         Play.setText("Play");
         Play.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -262,6 +296,14 @@ public class LabAims extends javax.swing.JFrame {
         });
         Play.add(jMenuItem2);
 
+        jMenuItem10.setText("Refresh");
+        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem10ActionPerformed(evt);
+            }
+        });
+        Play.add(jMenuItem10);
+
         jMenuItem3.setText("Scoreboard");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -278,6 +320,14 @@ public class LabAims extends javax.swing.JFrame {
                 CosmeticActionPerformed(evt);
             }
         });
+
+        jMenuItem11.setText("Reset");
+        jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem11ActionPerformed(evt);
+            }
+        });
+        Cosmetic.add(jMenuItem11);
 
         jMenuItem4.setText("Set Left Click Enemy's Color");
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
@@ -302,6 +352,14 @@ public class LabAims extends javax.swing.JFrame {
             }
         });
         Cosmetic.add(jMenuItem6);
+
+        jMenuItem9.setText("Set Dodge Enemy's Label");
+        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem9ActionPerformed(evt);
+            }
+        });
+        Cosmetic.add(jMenuItem9);
 
         jMenuItem8.setText("Set Player's Name");
         jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
@@ -337,35 +395,51 @@ public class LabAims extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(l3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(195, Short.MAX_VALUE)
-                .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(190, 190, 190))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(l7, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(l8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(l1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(l2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(l4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(5, 5, 5)
-                                .addComponent(b2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(l7, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(l8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(l5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(5, 5, 5)
-                                .addComponent(b3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(5, 5, 5)
-                                .addComponent(b4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(l1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(l2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(l4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(5, 5, 5)
+                                        .addComponent(b2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(l5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(5, 5, 5)
+                                        .addComponent(b3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(5, 5, 5)
+                                        .addComponent(b4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(l11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(5, 5, 5)
+                                        .addComponent(l12, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(l9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE)
+                        .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(190, 190, 190))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(l13)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(22, 22, 22)
+                    .addComponent(l10)
+                    .addContainerGap(317, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -380,9 +454,17 @@ public class LabAims extends javax.swing.JFrame {
                     .addComponent(l8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(l3)
-                .addGap(57, 57, 57)
-                .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
+                .addGap(56, 56, 56)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(l9))
+                .addGap(18, 18, 18)
+                .addComponent(l13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(l11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(l12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(l4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(b2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -395,6 +477,11 @@ public class LabAims extends javax.swing.JFrame {
                     .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(b4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(39, 39, 39))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(129, 129, 129)
+                    .addComponent(l10)
+                    .addContainerGap(229, Short.MAX_VALUE)))
         );
 
         l6.getAccessibleContext().setAccessibleName("right-click enemies");
@@ -402,9 +489,28 @@ public class LabAims extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-<<<<<<< HEAD
     private void updateGUI(){
-        l2.setText("Highest Score: "+scoreHighest);
+        if(scoreCurrent != 0) l1.setText("Current Score: "+scoreCurrent); 
+        if(scoreHighest != 0) l2.setText("Highest Score: "+scoreHighest); 
+    }
+    
+    private void refreshGUI(){
+        GameOver();
+        l8.setText(null);
+        l9.setLocation(-50, -15);
+        l10.setLocation(-50, -15);
+        l13.setLocation(-50, -15);
+        l12.setText(null);
+        
+        l3.setText("Time left (seconds): 30");
+        
+        b1.setLocation(195, 135);
+        b1.setEnabled(false);
+        
+        cosmeticState();
+        scoreBoard();
+        l1.setText("Current Score: "+scoreCurrent); 
+        if(scoreHighest != 0) l2.setText("Highest Score: "+scoreHighest); 
     }
     
     private void scoreBoard(){
@@ -460,79 +566,172 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             l2.setText("Highest Score: ");
         }
-=======
-    public void Score(){
-        datasetA = null;
-        
-        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
-        table.setRowSorter(sorter);
-        ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(25);
-        sortKeys.add(new RowSorter.SortKey(0, SortOrder.DESCENDING));
-        sorter.setSortKeys(sortKeys);
-        
-        while (scan1.hasNextLine()) {
-            try{
-                scanned = scan1.nextLine().split(" ");
-                datasetA = new Object[] {Integer.valueOf(scanned[0]), scanned[1], scanned[2]};
-                stack.add(Integer.valueOf(scanned[0]));
-            }catch(Exception e){
-                
+    }
+    
+    private void instantiate_l9(){
+        random_l9 = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_l9 == 0||random_l9 == 1){
+            yAxis_19 = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_l9 == 0){
+                xAxis_l9 = -50;
+            }else if(random_l9 == 1){
+                xAxis_l9 = 395;
+            }
+        }else if(random_l9 == 2||random_l9 == 3){
+            xAxis_l9 = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_l9 == 2){
+                yAxis_19 = -15;
+            }else if(random_l9 == 3){
+                yAxis_19 = 340;
             }
         }
-        Collections.sort(stack, Collections.reverseOrder());
-        scoreHighest = stack.get(0);
-        l2.setText("Highest Score: "+scoreHighest);
->>>>>>> parent of 130796a (d2022-10-21.t0122)
+        speed_l9 = ThreadLocalRandom.current().nextInt(5, 16);
+    }
+    private void instantiate_l10(){
+        random_l10 = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_l10 == 0||random_l10 == 1){
+            yAxis_l10 = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_l10 == 0){
+                xAxis_l10 = -50;
+            }else if(random_l10 == 1){
+                xAxis_l10 = 395;
+            }
+        }else if(random_l10 == 2||random_l10 == 3){
+            xAxis_l10 = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_l10 == 2){
+                yAxis_l10 = -15;
+            }else if(random_l10 == 3){
+                yAxis_l10 = 340;
+            }
+        }
+        speed_l10 = ThreadLocalRandom.current().nextInt(5, 16);
+    }
+    private void instantiate_l13(){
+        random_l13 = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_l13 == 0||random_l13 == 1){
+            yAxis_l13 = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_l13 == 0){
+                xAxis_l13 = -50;
+            }else if(random_l13 == 1){
+                xAxis_l13 = 395;
+            }
+        }else if(random_l13 == 2||random_l13 == 3){
+            xAxis_l13 = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_l13 == 2){
+                yAxis_l13 = -15;
+            }else if(random_l13 == 3){
+                yAxis_l13 = 340;
+            }
+        }
+        speed_l13 = ThreadLocalRandom.current().nextInt(5, 16);
+    }
+    
+    private void dodgeMe(){
+        if(l9.getLocation().x < -50){
+            instantiate_l9();
+        }else if(l9.getLocation().x > 395){
+            instantiate_l9();
+        }
+        if(l9.getLocation().y < -15){
+            instantiate_l9();
+        }else if(l9.getLocation().y > 340){
+            instantiate_l9();
+        }
+        if(random_l9 == 0){
+            xAxis_l9 += speed_l9;
+        }else if(random_l9 == 1){
+            xAxis_l9 -= speed_l9;
+        }else if(random_l9 == 2){
+            yAxis_19 += speed_l9;
+        }else if(random_l9 == 3){
+            yAxis_19 -= speed_l9;
+        }
+        l9.setLocation(xAxis_l9, yAxis_19);
+        
+        if(l10.getLocation().x < -50){
+            instantiate_l10();
+        }else if(l10.getLocation().x > 395){
+            instantiate_l10();
+        }
+        if(l10.getLocation().y < -15){
+            instantiate_l10();
+        }else if(l10.getLocation().y > 340){
+            instantiate_l10();
+        }
+        if(random_l10 == 0){
+            xAxis_l10 += speed_l10;
+        }else if(random_l10 == 1){
+            xAxis_l10 -= speed_l10;
+        }else if(random_l10 == 2){
+            yAxis_l10 += speed_l10;
+        }else if(random_l10 == 3){
+            yAxis_l10 -= speed_l10;
+        }
+        l10.setLocation(xAxis_l10, yAxis_l10);
+        
+        if(l13.getLocation().x < -50){
+            instantiate_l13();
+        }else if(l13.getLocation().x > 395){
+            instantiate_l13();
+        }
+        if(l13.getLocation().y < -15){
+            instantiate_l13();
+        }else if(l13.getLocation().y > 340){
+            instantiate_l13();
+        }
+        if(random_l13 == 0){
+            xAxis_l13 += speed_l13;
+        }else if(random_l13 == 1){
+            xAxis_l13 -= speed_l13;
+        }else if(random_l13 == 2){
+            yAxis_l13 += speed_l13;
+        }else if(random_l13 == 3){
+            yAxis_l13 -= speed_l13;
+        }
+        l13.setLocation(xAxis_l13, yAxis_l13);
     }
     
     private void GameOver() {
-        l3.setText(String.valueOf("Time left (seconds): "+count/10+""+count%10));
-        if(count == 0){
+        buttonState(false);
+        pause = true;
+        l3.setText("Times Up!");
+        try {
             t1.cancel();
-            buttonState(false);
-            b1.setLocation(xAxis = 195, yAxis = 135);
-            l3.setText("Times Up!");
-            Score();
-            try {
-                String pattern = "YYYYMMddHHmm";
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-                String date = simpleDateFormat.format(new Date());
-                write = new BufferedWriter(new FileWriter(scoreboard, true));
-                if(scoreCurrent > 0){
-                    write.append("\n"+scoreCurrent+" "+name+" "+date);
-                    write.flush();
-                }
-            } catch (Exception e) {
+            String pattern = "YYYYMMddHHmm";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            String date = simpleDateFormat.format(new Date());
+            write = new BufferedWriter(new FileWriter(scoreboard, true));
+            if(scoreCurrent != 0){
+                write.append("\n"+scoreCurrent+" "+name+" "+date);
+                write.flush();
             }
-<<<<<<< HEAD
-            scoreBoard();
-=======
->>>>>>> parent of 130796a (d2022-10-21.t0122)
+        } catch (Exception e) {
         }
+        scoreBoard();
     }
     
-    public void colorState(){
+    public void cosmeticState(){
         try{
             read = new Scanner(cosmetic);
             if(read.hasNextLine()==false){
                 write = new BufferedWriter(new FileWriter(cosmetic)); 
-<<<<<<< HEAD
-                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\nname "+name);
-=======
-                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB);
->>>>>>> parent of 130796a (d2022-10-21.t0122)
+                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\ndodge "+dodge+"\nname "+name);
                 write.close();
             }else{
                 read = new Scanner(cosmetic);
                 while (read.hasNextLine()) {
                     String currLine = read.nextLine();
-                    scanned = currLine.split(" ");
-                    if(currLine.contains("lmb")){
+                    scanned = currLine.split(" ",2);
+                    if(currLine.contains("lmb ")){
                         colorLMB = scanned[1];
-                    }else if(currLine.contains("mmb")){
+                    }else if(currLine.contains("mmb ")){
                         colorMMB = scanned[1];
-                    }else if(currLine.contains("rmb")){
+                    }else if(currLine.contains("rmb ")){
                         colorRMB = scanned[1];
+                    }else if(currLine.contains("dodge ")){
+                        dodge = scanned[1];
+                    }else if(currLine.contains("name ")){
+                        name = scanned[1];
                     }
                 }
             }
@@ -542,7 +741,13 @@ public class LabAims extends javax.swing.JFrame {
         enemyA = Color.decode(colorLMB);
         enemyB = Color.decode(colorMMB);
         enemyC = Color.decode(colorRMB);
-
+        
+        l8.setText(name);
+        l9.setText(dodge);
+        l10.setText(dodge);
+        l12.setText(dodge);
+        l13.setText(dodge);
+        
         b2.setBackground(enemyA);
         b3.setBackground(enemyB);
         b4.setBackground(enemyC);
@@ -560,50 +765,51 @@ public class LabAims extends javax.swing.JFrame {
     }
     
     private void colorRandom() {
-        color = ThreadLocalRandom.current().nextInt(0, 3);  
-        if(color == 0){
+        random = ThreadLocalRandom.current().nextInt(0, 3);  
+        if(random == 0){
             b1.setBackground(enemyA);
-        }else if(color == 1){
+        }else if(random == 1){
             b1.setBackground(enemyB);
-        }else if(color == 2){
+        }else if(random == 2){
             b1.setBackground(enemyC);
         }
     }
     
+    
+    
     private void b1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b1MousePressed
-        // TODO add your handling code here:
-        xAxis = ThreadLocalRandom.current().nextInt(50, 350); 
-        yAxis = ThreadLocalRandom.current().nextInt(50, 285);
+        xAxis_b1 = ThreadLocalRandom.current().nextInt(50, 350); 
+        yAxis_b1 = ThreadLocalRandom.current().nextInt(50, 285);
         
         if(b1.isEnabled() == true){
             if(evt.getButton()==1){         
                 if(b1.getBackground() == enemyA){
                     scoreCurrent += 100;
-                    b1.setLocation(xAxis, yAxis);
+                    b1.setLocation(xAxis_b1, yAxis_b1);
 
                 }else{
                     scoreCurrent -= 1000;
-                    b1.setLocation(xAxis, yAxis);
+                    b1.setLocation(xAxis_b1, yAxis_b1);
                 }
                 l1.setText("Current Score: "+scoreCurrent);
             }else if(evt.getButton()==2){         
                 if(b1.getBackground() == enemyB){
                     scoreCurrent += 100;
-                    b1.setLocation(xAxis, yAxis);
+                    b1.setLocation(xAxis_b1, yAxis_b1);
 
                 }else{
                     scoreCurrent -= 1000;
-                    b1.setLocation(xAxis, yAxis);
+                    b1.setLocation(xAxis_b1, yAxis_b1);
                 }
                 l1.setText("Current Score: "+scoreCurrent);
             }else if(evt.getButton()==3){         
                 if(b1.getBackground() == enemyC){
                     scoreCurrent += 100;
-                    b1.setLocation(xAxis, yAxis);
+                    b1.setLocation(xAxis_b1, yAxis_b1);
 
                 }else{
                     scoreCurrent -= 1000;
-                    b1.setLocation(xAxis, yAxis);
+                    b1.setLocation(xAxis_b1, yAxis_b1);
                 }
                 l1.setText("Current Score: "+scoreCurrent);
             }
@@ -615,30 +821,56 @@ public class LabAims extends javax.swing.JFrame {
         if(pause == true){
             pause = false;
         }
-        
-        count = 30;
         l1.setText("Current Score: ");
         scoreCurrent = 0;
         scoreBoard();
         colorRandom();
+        
+        b1.setEnabled(true);
+        
         try{
             t1.cancel();
         }
         catch(Exception ex){
             
         }
-        b1.setEnabled(true);
+        b1.setLocation(xAxis_b1 = 195, yAxis_b1 = 135);
         t1 = new Timer();
+        count = 30;
         t1.schedule(new TimerTask() {
             @Override
             public void run() {
+                l3.setText(String.valueOf("Time left (seconds): "+count/10+""+count%10));
                 if(pause == false){
-                   count--; 
+                    count--; 
                 }
-                GameOver();
+                if(count == 0){
+                    GameOver();
+                }
             }
         }, 0, 1_000);
         
+        try{
+            t2.cancel();
+        }
+        catch(Exception ex){
+            
+        }
+        instantiate_l9();
+        instantiate_l10();
+        instantiate_l13();
+        t2 = new Timer();
+        t2.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(pause == false){
+                    dodgeMe();
+                }
+                if(count == 0){
+                    t2.cancel();
+                }
+            }
+        }, 0, 100);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem1MenuKeyPressed(javax.swing.event.MenuKeyEvent evt) {//GEN-FIRST:event_jMenuItem1MenuKeyPressed
@@ -681,7 +913,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
-        colorState();
+        cosmeticState();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayActionPerformed
@@ -728,7 +960,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
-        colorState();
+        cosmeticState();
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
@@ -754,7 +986,7 @@ public class LabAims extends javax.swing.JFrame {
         }catch(Exception e){
             
         }
-        colorState();
+        cosmeticState();
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void b2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b2MousePressed
@@ -782,30 +1014,97 @@ public class LabAims extends javax.swing.JFrame {
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
         // TODO add your handling code here:
-<<<<<<< HEAD
         try{
             tmp = JOptionPane.showInputDialog("Name Please?");
             read = new Scanner(cosmetic);
-            while (read.hasNextLine()) {
-                content = content.concat(read.nextLine() + "\n");
-            }
-            try{
-                content = content.replaceAll("name "+name, "name "+tmp);
-                write = new BufferedWriter(new FileWriter(cosmetic));
-                write.write(content);
-                write.close();
-                name = tmp;
-            } catch (Exception e) {
+            if(tmp.length()>0){
+                while (read.hasNextLine()) {
+                    content = content.concat(read.nextLine() + "\n");
+                }
+                try{
+                    content = content.replaceAll("name "+name, "name "+tmp);
+                    write = new BufferedWriter(new FileWriter(cosmetic));
+                    write.write(content);
+                    write.close();
+                    name = tmp;
+                } catch (Exception e) {
+                }
             }
         }catch(Exception e){
             
         }
         cosmeticState();
-=======
-        name = JOptionPane.showInputDialog("Name Please?");
-        l8.setText(name);
->>>>>>> parent of 130796a (d2022-10-21.t0122)
     }//GEN-LAST:event_jMenuItem8ActionPerformed
+
+    private void l9MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_l9MouseEntered
+        if(pause == false){
+            scoreCurrent -= 50;
+            updateGUI();
+        }
+    }//GEN-LAST:event_l9MouseEntered
+
+    private void l10MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_l10MouseEntered
+        // TODO add your handling code here:
+        if(pause == false){
+            scoreCurrent -= 50;
+            updateGUI();
+        }
+    }//GEN-LAST:event_l10MouseEntered
+
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+        // TODO add your handling code here:
+        try{
+            tmp = JOptionPane.showInputDialog("Label Please?");
+            read = new Scanner(cosmetic);
+            if(tmp.length()>5){
+                while (read.hasNextLine()) {
+                    content = content.concat(read.nextLine() + "\n");
+                }
+                try{
+                    content = content.replaceAll("dodge "+dodge, "dodge "+tmp);
+                    write = new BufferedWriter(new FileWriter(cosmetic));
+                    write.write(content);
+                    write.close();
+                    dodge = tmp;
+                } catch (Exception e) {
+                }
+            }else{
+                JOptionPane.showMessageDialog(null,"More than 5 characters, PLEZ");
+            }
+        }catch(Exception e){
+            
+        }
+        cosmeticState();
+    }//GEN-LAST:event_jMenuItem9ActionPerformed
+
+    private void l13MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_l13MouseEntered
+        // TODO add your handling code here:
+        if(pause == false){
+            scoreCurrent -= 50;
+            updateGUI();
+        }
+    }//GEN-LAST:event_l13MouseEntered
+
+    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
+        refreshGUI();
+    }//GEN-LAST:event_jMenuItem10ActionPerformed
+
+    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
+        // TODO add your handling code here:
+        colorLMB = "#FF0000";
+        colorMMB = "#00FFFF";
+        colorRMB = "#FFC0CB";
+        name = "annonymous!";
+        dodge = "dodge me!";
+        try{
+            write = new BufferedWriter(new FileWriter(cosmetic)); 
+            write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\ndodge "+dodge+"\nname "+name);
+            write.close();
+        }catch(Exception e){
+            
+        }
+        cosmeticState();
+    }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -853,6 +1152,8 @@ public class LabAims extends javax.swing.JFrame {
     private javax.swing.JButton b4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem10;
+    private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
@@ -860,7 +1161,12 @@ public class LabAims extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JLabel l1;
+    private javax.swing.JLabel l10;
+    private javax.swing.JLabel l11;
+    private javax.swing.JLabel l12;
+    private javax.swing.JLabel l13;
     private javax.swing.JLabel l2;
     private javax.swing.JLabel l3;
     private javax.swing.JLabel l4;
@@ -868,5 +1174,6 @@ public class LabAims extends javax.swing.JFrame {
     private javax.swing.JLabel l6;
     private javax.swing.JLabel l7;
     private javax.swing.JLabel l8;
+    private javax.swing.JLabel l9;
     // End of variables declaration//GEN-END:variables
 }
