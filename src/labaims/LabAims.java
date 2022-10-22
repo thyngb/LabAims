@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Scanner;
@@ -34,64 +33,114 @@ import javax.swing.table.DefaultTableModel;
  * @author ncoba
  */
 public class LabAims extends javax.swing.JFrame {
+    String 
+        name = "annonymous",
+        dodge = "dodge me!", 
+            
+        pattern = "YYYYMMddHHmm",
+        date,
+            
+        colorLMB,
+        colorMMB,
+        colorRMB,
+            
+        content = "",
+        tmp = "",
     
-    String name = "annonymous", dodge = "dodge me!";
+        path;
     
-    Timer t1, t2;
-    int 
-        xAxis_b1, yAxis_b1, 
-        xAxis_l9, yAxis_19,
-        xAxis_l10, yAxis_l10, 
-        xAxis_l13, yAxis_l13, 
-        speed_l9, speed_l10, speed_l13,
-        random, random_l9, random_l10, random_l13,
-        duration, 
-        count=30,
+    int
+        deduct_dodge = 50,
+        deduct_button = 1000,
+            
+        duration=30,
+            
         scoreCurrent = 0, 
-        scoreHighest = 0;
+        scoreHighest = 0,
+            
+        xAxis_b1, 
+        yAxis_b1,
+        random,
+            
+        xAxis_dodgeA, 
+        yAxis_dodgeA,
+        speed_dodgeA,
+        random_dodgeA,
+            
+        xAxis_dodgeB, 
+        yAxis_dodgeB,
+        speed_dodgeB,
+        random_dodgeB,
+            
+        xAxis_dodgeC, 
+        yAxis_dodgeC,
+        speed_dodgeC,
+        random_dodgeC,
+            
+        xAxis_dodgeD, 
+        yAxis_dodgeD,
+        speed_dodgeD,
+        random_dodgeD;
     
     boolean 
         pause = true, 
         start = false;
     
+    Scanner 
+        read;
+    
+    BufferedWriter 
+        write;
+    
+    Timer 
+        t1, 
+        t2;
+    
+    SimpleDateFormat 
+        simpleDateFormat = new SimpleDateFormat(pattern);
+    
+    Path 
+        currentRelativePath = Paths.get("");
+    
+    File 
+        directory = new File(path = currentRelativePath.toAbsolutePath().toString()+"/bin/"),
+            
+        scoreboard = new File(path+"scoreboard.txt"),
+            
+        cosmetic = new File(path+"cosmetic.txt");
+    
+    String[] 
+        scanned;
+    
+    Object[][] 
+        datasetA;
+    
+    Object[] 
+        column;
+    
+    Object 
+        A, 
+        B;
+    
+    Pattern 
+        p = Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
+    
+    Matcher 
+        m;
+    
     Color
-        enemyA,
-        enemyB,
-        enemyC;
+        enemyA = Color.decode(colorLMB = "#FF0000"),
+        enemyB = Color.decode(colorMMB = "#00FFFF"),
+        enemyC = Color.decode(colorRMB = "#FFC0CB");
     
-    DefaultTableModel model = new DefaultTableModel();
-    JTable table = new JTable(model);
-    JScrollPane pane = new JScrollPane(table);
+    DefaultTableModel 
+        model = new DefaultTableModel();
     
-    String[] scanned = null;
-    Path currentRelativePath = Paths.get("");
-    String s = currentRelativePath.toAbsolutePath().toString()+"/bin/";
-    File directory = new File(s);
-    File scoreboard = new File(s+"scoreboard.txt"); 
-    File cosmetic = new File(s+"cosmetic.txt"); 
+    JTable 
+        table = new JTable(model);
     
-    Scanner read;
-    
-    BufferedWriter write;
-    
-    ArrayList<Integer> stack = new ArrayList<Integer>();
-    Object[][] datasetA;
-    Object[] column;
-    Object A, B;
-    
-    Pattern p = Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
-    Matcher m;
-    
-    String 
-        colorLMB = "#FF0000",
-        colorMMB = "#00FFFF",
-        colorRMB = "#FFC0CB";
-    
-    String 
-        content = "",
-        tmp = "";
-    
-    
+    JScrollPane 
+        pane = new JScrollPane(table);
     
     public LabAims() {
         initComponents();
@@ -115,8 +164,6 @@ public class LabAims extends javax.swing.JFrame {
         
         setTitle("LabAims");
         setSize(400, 400);
-        
-        
     }
 
     /**
@@ -140,17 +187,18 @@ public class LabAims extends javax.swing.JFrame {
         b4 = new javax.swing.JButton();
         l7 = new javax.swing.JLabel();
         l8 = new javax.swing.JLabel();
-        l9 = new javax.swing.JLabel();
-        l10 = new javax.swing.JLabel();
+        dodgeA = new javax.swing.JLabel();
+        dodgeB = new javax.swing.JLabel();
+        dodgeC = new javax.swing.JLabel();
         l11 = new javax.swing.JLabel();
         l12 = new javax.swing.JLabel();
-        l13 = new javax.swing.JLabel();
+        dodgeD = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
-        Play = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem10 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        Game = new javax.swing.JMenu();
+        newGame = new javax.swing.JMenuItem();
+        togglePauseGame = new javax.swing.JMenuItem();
+        refreshGame = new javax.swing.JMenuItem();
+        Scoreboard = new javax.swing.JMenuItem();
         Cosmetic = new javax.swing.JMenu();
         jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -233,17 +281,24 @@ public class LabAims extends javax.swing.JFrame {
 
         l8.setText("\"\"");
 
-        l9.setText("dodge me!");
-        l9.addMouseListener(new java.awt.event.MouseAdapter() {
+        dodgeA.setText("dodge me!");
+        dodgeA.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                l9MouseEntered(evt);
+                dodgeAMouseEntered(evt);
             }
         });
 
-        l10.setText("dodge me!");
-        l10.addMouseListener(new java.awt.event.MouseAdapter() {
+        dodgeB.setText("dodge me!");
+        dodgeB.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                l10MouseEntered(evt);
+                dodgeBMouseEntered(evt);
+            }
+        });
+
+        dodgeC.setText("dodge me!");
+        dodgeC.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                dodgeCMouseEntered(evt);
             }
         });
 
@@ -257,62 +312,53 @@ public class LabAims extends javax.swing.JFrame {
         l12.setMinimumSize(new java.awt.Dimension(150, 16));
         l12.setPreferredSize(new java.awt.Dimension(150, 16));
 
-        l13.setText("dodge me!");
-        l13.addMouseListener(new java.awt.event.MouseAdapter() {
+        dodgeD.setText("dodge me!");
+        dodgeD.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                l13MouseEntered(evt);
+                dodgeDMouseEntered(evt);
             }
         });
 
-        Play.setText("Play");
-        Play.addActionListener(new java.awt.event.ActionListener() {
+        Game.setText("Game");
+        Game.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PlayActionPerformed(evt);
+                GameActionPerformed(evt);
             }
         });
 
-        jMenuItem1.setText("Start New");
-        jMenuItem1.addMenuKeyListener(new javax.swing.event.MenuKeyListener() {
-            public void menuKeyPressed(javax.swing.event.MenuKeyEvent evt) {
-                jMenuItem1MenuKeyPressed(evt);
-            }
-            public void menuKeyReleased(javax.swing.event.MenuKeyEvent evt) {
-            }
-            public void menuKeyTyped(javax.swing.event.MenuKeyEvent evt) {
-            }
-        });
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        newGame.setText("New");
+        newGame.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                newStartActionPerformed(evt);
             }
         });
-        Play.add(jMenuItem1);
+        Game.add(newGame);
 
-        jMenuItem2.setText("Resume Or Pause");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        togglePauseGame.setText("Pause/Play");
+        togglePauseGame.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                togglePauseGameActionPerformed(evt);
             }
         });
-        Play.add(jMenuItem2);
+        Game.add(togglePauseGame);
 
-        jMenuItem10.setText("Refresh");
-        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+        refreshGame.setText("Refresh");
+        refreshGame.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem10ActionPerformed(evt);
+                refreshGameActionPerformed(evt);
             }
         });
-        Play.add(jMenuItem10);
+        Game.add(refreshGame);
 
-        jMenuItem3.setText("Scoreboard");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        Scoreboard.setText("Scoreboard");
+        Scoreboard.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                ScoreboardActionPerformed(evt);
             }
         });
-        Play.add(jMenuItem3);
+        Game.add(Scoreboard);
 
-        jMenuBar1.add(Play);
+        jMenuBar1.add(Game);
 
         Cosmetic.setText("Cosmetic");
         Cosmetic.addActionListener(new java.awt.event.ActionListener() {
@@ -424,22 +470,25 @@ public class LabAims extends javax.swing.JFrame {
                                         .addComponent(l11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(5, 5, 5)
                                         .addComponent(l12, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                                .addGap(0, 115, Short.MAX_VALUE)))
                         .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(l9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE)
-                        .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(190, 190, 190))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(dodgeB)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(190, 190, 190))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(dodgeA)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
             .addGroup(layout.createSequentialGroup()
                 .addGap(30, 30, 30)
-                .addComponent(l13)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dodgeD)
+                    .addComponent(dodgeC))
                 .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(22, 22, 22)
-                    .addComponent(l10)
-                    .addContainerGap(317, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -454,13 +503,17 @@ public class LabAims extends javax.swing.JFrame {
                     .addComponent(l8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(l3)
-                .addGap(56, 56, 56)
+                .addGap(27, 27, 27)
+                .addComponent(dodgeA)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(l9))
+                    .addComponent(dodgeB))
                 .addGap(18, 18, 18)
-                .addComponent(l13)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                .addComponent(dodgeC)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dodgeD)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(l11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(l12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -477,11 +530,6 @@ public class LabAims extends javax.swing.JFrame {
                     .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(b4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(39, 39, 39))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(129, 129, 129)
-                    .addComponent(l10)
-                    .addContainerGap(229, Short.MAX_VALUE)))
         );
 
         l6.getAccessibleContext().setAccessibleName("right-click enemies");
@@ -496,19 +544,38 @@ public class LabAims extends javax.swing.JFrame {
     
     private void refreshGUI(){
         GameOver();
-        l8.setText(null);
-        l9.setLocation(-50, -15);
-        l10.setLocation(-50, -15);
-        l13.setLocation(-50, -15);
-        l12.setText(null);
+        cosmeticState();
+        scoreBoard();
+        
+        l8.setText(name);
+        
+        dodgeA.setLocation(-50, -15);
+        dodgeA.setText(dodge);
+        
+        dodgeB.setLocation(-50, -15);
+        dodgeB.setText(dodge);
+        
+        dodgeC.setLocation(-50, -15);
+        dodgeC.setText(dodge);
+        
+        dodgeD.setLocation(-50, -15);
+        dodgeD.setText(dodge);
+        
+        l12.setText(dodge);
+        
+        b2.setBackground(enemyA);
+        b3.setBackground(enemyB);
+        b4.setBackground(enemyC);
+        
+        b2.setFocusable(false);
+        b3.setFocusable(false);
+        b4.setFocusable(false);
         
         l3.setText("Time left (seconds): 30");
         
         b1.setLocation(195, 135);
         b1.setEnabled(false);
         
-        cosmeticState();
-        scoreBoard();
         l1.setText("Current Score: "+scoreCurrent); 
         if(scoreHighest != 0) l2.setText("Highest Score: "+scoreHighest); 
     }
@@ -568,138 +635,185 @@ public class LabAims extends javax.swing.JFrame {
         }
     }
     
-    private void instantiate_l9(){
-        random_l9 = ThreadLocalRandom.current().nextInt(0, 4); 
-        if(random_l9 == 0||random_l9 == 1){
-            yAxis_19 = ThreadLocalRandom.current().nextInt(0, 325);
-            if(random_l9 == 0){
-                xAxis_l9 = -50;
-            }else if(random_l9 == 1){
-                xAxis_l9 = 395;
+    private void instantiate_dodgeA(){
+        random_dodgeA = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_dodgeA == 0||random_dodgeA == 1){
+            yAxis_dodgeA = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_dodgeA == 0){
+                xAxis_dodgeA = -50;
+            }else if(random_dodgeA == 1){
+                xAxis_dodgeA = 395;
             }
-        }else if(random_l9 == 2||random_l9 == 3){
-            xAxis_l9 = ThreadLocalRandom.current().nextInt(0, 345);
-            if(random_l9 == 2){
-                yAxis_19 = -15;
-            }else if(random_l9 == 3){
-                yAxis_19 = 340;
+        }else if(random_dodgeA == 2||random_dodgeA == 3){
+            xAxis_dodgeA = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_dodgeA == 2){
+                yAxis_dodgeA = -15;
+            }else if(random_dodgeA == 3){
+                yAxis_dodgeA = 340;
             }
         }
-        speed_l9 = ThreadLocalRandom.current().nextInt(5, 16);
+        speed_dodgeA = ThreadLocalRandom.current().nextInt(5, 16);
     }
-    private void instantiate_l10(){
-        random_l10 = ThreadLocalRandom.current().nextInt(0, 4); 
-        if(random_l10 == 0||random_l10 == 1){
-            yAxis_l10 = ThreadLocalRandom.current().nextInt(0, 325);
-            if(random_l10 == 0){
-                xAxis_l10 = -50;
-            }else if(random_l10 == 1){
-                xAxis_l10 = 395;
+    private void instantiate_dodgeB(){
+        random_dodgeB = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_dodgeB == 0||random_dodgeB == 1){
+            yAxis_dodgeB = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_dodgeB == 0){
+                xAxis_dodgeB = -50;
+            }else if(random_dodgeB == 1){
+                xAxis_dodgeB = 395;
             }
-        }else if(random_l10 == 2||random_l10 == 3){
-            xAxis_l10 = ThreadLocalRandom.current().nextInt(0, 345);
-            if(random_l10 == 2){
-                yAxis_l10 = -15;
-            }else if(random_l10 == 3){
-                yAxis_l10 = 340;
+        }else if(random_dodgeB == 2||random_dodgeB == 3){
+            xAxis_dodgeB = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_dodgeB == 2){
+                yAxis_dodgeB = -15;
+            }else if(random_dodgeB == 3){
+                yAxis_dodgeB = 340;
             }
         }
-        speed_l10 = ThreadLocalRandom.current().nextInt(5, 16);
+        speed_dodgeB = ThreadLocalRandom.current().nextInt(5, 16);
     }
-    private void instantiate_l13(){
-        random_l13 = ThreadLocalRandom.current().nextInt(0, 4); 
-        if(random_l13 == 0||random_l13 == 1){
-            yAxis_l13 = ThreadLocalRandom.current().nextInt(0, 325);
-            if(random_l13 == 0){
-                xAxis_l13 = -50;
-            }else if(random_l13 == 1){
-                xAxis_l13 = 395;
+    private void instantiate_dodgeC(){
+        random_dodgeC = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_dodgeC == 0||random_dodgeC == 1){
+            yAxis_dodgeC = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_dodgeC == 0){
+                xAxis_dodgeC = -50;
+            }else if(random_dodgeC == 1){
+                xAxis_dodgeC = 395;
             }
-        }else if(random_l13 == 2||random_l13 == 3){
-            xAxis_l13 = ThreadLocalRandom.current().nextInt(0, 345);
-            if(random_l13 == 2){
-                yAxis_l13 = -15;
-            }else if(random_l13 == 3){
-                yAxis_l13 = 340;
+        }else if(random_dodgeC == 2||random_dodgeC == 3){
+            xAxis_dodgeC = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_dodgeC == 2){
+                yAxis_dodgeC = -15;
+            }else if(random_dodgeC == 3){
+                yAxis_dodgeC = 340;
             }
         }
-        speed_l13 = ThreadLocalRandom.current().nextInt(5, 16);
+        speed_dodgeC = ThreadLocalRandom.current().nextInt(5, 16);
     }
-    
-    private void dodgeMe(){
-        if(l9.getLocation().x < -50){
-            instantiate_l9();
-        }else if(l9.getLocation().x > 395){
-            instantiate_l9();
+    private void instantiate_dodgeD(){
+	random_dodgeD = ThreadLocalRandom.current().nextInt(0, 4); 
+	if(random_dodgeD == 0||random_dodgeD == 1){
+		yAxis_dodgeD = ThreadLocalRandom.current().nextInt(0, 325);
+		if(random_dodgeD == 0){
+			xAxis_dodgeD = -50;
+		}else if(random_dodgeD == 1){
+			xAxis_dodgeD = 395;
+		}
+	}else if(random_dodgeD == 2||random_dodgeD == 3){
+		xAxis_dodgeD = ThreadLocalRandom.current().nextInt(0, 345);
+		if(random_dodgeD == 2){
+			yAxis_dodgeD = -15;
+		}else if(random_dodgeD == 3){
+			yAxis_dodgeD = 340;
+		}
+	}
+	speed_dodgeD = ThreadLocalRandom.current().nextInt(5, 16);
+    }
+    private void dodge(){
+        if(duration < 30){
+            if(dodgeA.getLocation().x < -50){
+            instantiate_dodgeA();
+            }else if(dodgeA.getLocation().x > 395){
+                instantiate_dodgeA();
+            }
+            if(dodgeA.getLocation().y < -15){
+                instantiate_dodgeA();
+            }else if(dodgeA.getLocation().y > 340){
+                instantiate_dodgeA();
+            }
+            if(random_dodgeA == 0){
+                xAxis_dodgeA += speed_dodgeA;
+            }else if(random_dodgeA == 1){
+                xAxis_dodgeA -= speed_dodgeA;
+            }else if(random_dodgeA == 2){
+                yAxis_dodgeA += speed_dodgeA;
+            }else if(random_dodgeA == 3){
+                yAxis_dodgeA -= speed_dodgeA;
+            }
+            dodgeA.setLocation(xAxis_dodgeA, yAxis_dodgeA);
         }
-        if(l9.getLocation().y < -15){
-            instantiate_l9();
-        }else if(l9.getLocation().y > 340){
-            instantiate_l9();
-        }
-        if(random_l9 == 0){
-            xAxis_l9 += speed_l9;
-        }else if(random_l9 == 1){
-            xAxis_l9 -= speed_l9;
-        }else if(random_l9 == 2){
-            yAxis_19 += speed_l9;
-        }else if(random_l9 == 3){
-            yAxis_19 -= speed_l9;
-        }
-        l9.setLocation(xAxis_l9, yAxis_19);
         
-        if(l10.getLocation().x < -50){
-            instantiate_l10();
-        }else if(l10.getLocation().x > 395){
-            instantiate_l10();
+        if(duration < 20){
+            if(dodgeB.getLocation().x < -50){
+            instantiate_dodgeB();
+            }else if(dodgeB.getLocation().x > 395){
+                instantiate_dodgeB();
+            }
+            if(dodgeB.getLocation().y < -15){
+                instantiate_dodgeB();
+            }else if(dodgeB.getLocation().y > 340){
+                instantiate_dodgeB();
+            }
+            if(random_dodgeB == 0){
+                xAxis_dodgeB += speed_dodgeB;
+            }else if(random_dodgeB == 1){
+                xAxis_dodgeB -= speed_dodgeB;
+            }else if(random_dodgeB == 2){
+                yAxis_dodgeB += speed_dodgeB;
+            }else if(random_dodgeB == 3){
+                yAxis_dodgeB -= speed_dodgeB;
+            }
+            dodgeB.setLocation(xAxis_dodgeB, yAxis_dodgeB);
         }
-        if(l10.getLocation().y < -15){
-            instantiate_l10();
-        }else if(l10.getLocation().y > 340){
-            instantiate_l10();
-        }
-        if(random_l10 == 0){
-            xAxis_l10 += speed_l10;
-        }else if(random_l10 == 1){
-            xAxis_l10 -= speed_l10;
-        }else if(random_l10 == 2){
-            yAxis_l10 += speed_l10;
-        }else if(random_l10 == 3){
-            yAxis_l10 -= speed_l10;
-        }
-        l10.setLocation(xAxis_l10, yAxis_l10);
         
-        if(l13.getLocation().x < -50){
-            instantiate_l13();
-        }else if(l13.getLocation().x > 395){
-            instantiate_l13();
+        if(duration < 10){
+            if(dodgeC.getLocation().x < -50){
+            instantiate_dodgeC();
+            }else if(dodgeC.getLocation().x > 395){
+                instantiate_dodgeC();
+            }
+            if(dodgeC.getLocation().y < -15){
+                instantiate_dodgeC();
+            }else if(dodgeC.getLocation().y > 340){
+                instantiate_dodgeC();
+            }
+            if(random_dodgeC == 0){
+                xAxis_dodgeC += speed_dodgeC;
+            }else if(random_dodgeC == 1){
+                xAxis_dodgeC -= speed_dodgeC;
+            }else if(random_dodgeC == 2){
+                yAxis_dodgeC += speed_dodgeC;
+            }else if(random_dodgeC == 3){
+                yAxis_dodgeC -= speed_dodgeC;
+            }
+            dodgeC.setLocation(xAxis_dodgeC, yAxis_dodgeC);
         }
-        if(l13.getLocation().y < -15){
-            instantiate_l13();
-        }else if(l13.getLocation().y > 340){
-            instantiate_l13();
+        
+        if(duration < 5){
+            if(dodgeD.getLocation().x < -50){
+            instantiate_dodgeD();
+            }else if(dodgeD.getLocation().x > 395){
+                instantiate_dodgeD();
+            }
+            if(dodgeD.getLocation().y < -15){
+                instantiate_dodgeD();
+            }else if(dodgeD.getLocation().y > 340){
+                instantiate_dodgeD();
+            }
+            if(random_dodgeD == 0){
+                xAxis_dodgeD += speed_dodgeD;
+            }else if(random_dodgeD == 1){
+                xAxis_dodgeD -= speed_dodgeD;
+            }else if(random_dodgeD == 2){
+                yAxis_dodgeD += speed_dodgeD;
+            }else if(random_dodgeD == 3){
+                yAxis_dodgeD -= speed_dodgeD;
+            }
+            dodgeD.setLocation(xAxis_dodgeD, yAxis_dodgeD);
         }
-        if(random_l13 == 0){
-            xAxis_l13 += speed_l13;
-        }else if(random_l13 == 1){
-            xAxis_l13 -= speed_l13;
-        }else if(random_l13 == 2){
-            yAxis_l13 += speed_l13;
-        }else if(random_l13 == 3){
-            yAxis_l13 -= speed_l13;
-        }
-        l13.setLocation(xAxis_l13, yAxis_l13);
+        
     }
     
     private void GameOver() {
-        buttonState(false);
-        pause = true;
-        l3.setText("Times Up!");
         try {
+            buttonState(false);
+            pause = true;
+            l3.setText("Times Up!");
             t1.cancel();
-            String pattern = "YYYYMMddHHmm";
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-            String date = simpleDateFormat.format(new Date());
+            t2.cancel();
+            date = simpleDateFormat.format(new Date());
             write = new BufferedWriter(new FileWriter(scoreboard, true));
             if(scoreCurrent != 0){
                 write.append("\n"+scoreCurrent+" "+name+" "+date);
@@ -741,21 +855,6 @@ public class LabAims extends javax.swing.JFrame {
         enemyA = Color.decode(colorLMB);
         enemyB = Color.decode(colorMMB);
         enemyC = Color.decode(colorRMB);
-        
-        l8.setText(name);
-        l9.setText(dodge);
-        l10.setText(dodge);
-        l12.setText(dodge);
-        l13.setText(dodge);
-        
-        b2.setBackground(enemyA);
-        b3.setBackground(enemyB);
-        b4.setBackground(enemyC);
-        
-        b2.setFocusable(false);
-        b3.setFocusable(false);
-        b4.setFocusable(false);
-        
     }
     
     public void buttonState(boolean state){
@@ -788,7 +887,7 @@ public class LabAims extends javax.swing.JFrame {
                     b1.setLocation(xAxis_b1, yAxis_b1);
 
                 }else{
-                    scoreCurrent -= 1000;
+                    scoreCurrent -= deduct_button;
                     b1.setLocation(xAxis_b1, yAxis_b1);
                 }
                 l1.setText("Current Score: "+scoreCurrent);
@@ -798,7 +897,7 @@ public class LabAims extends javax.swing.JFrame {
                     b1.setLocation(xAxis_b1, yAxis_b1);
 
                 }else{
-                    scoreCurrent -= 1000;
+                    scoreCurrent -= deduct_button;
                     b1.setLocation(xAxis_b1, yAxis_b1);
                 }
                 l1.setText("Current Score: "+scoreCurrent);
@@ -808,7 +907,7 @@ public class LabAims extends javax.swing.JFrame {
                     b1.setLocation(xAxis_b1, yAxis_b1);
 
                 }else{
-                    scoreCurrent -= 1000;
+                    scoreCurrent -= deduct_button;
                     b1.setLocation(xAxis_b1, yAxis_b1);
                 }
                 l1.setText("Current Score: "+scoreCurrent);
@@ -817,15 +916,14 @@ public class LabAims extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_b1MousePressed
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        if(pause == true){
-            pause = false;
-        }
-        l1.setText("Current Score: ");
-        scoreCurrent = 0;
+    private void newStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newStartActionPerformed
+        GameOver();
         scoreBoard();
         colorRandom();
         
+        l1.setText("Current Score: ");
+        scoreCurrent = 0;
+        pause = false;
         b1.setEnabled(true);
         
         try{
@@ -836,15 +934,15 @@ public class LabAims extends javax.swing.JFrame {
         }
         b1.setLocation(xAxis_b1 = 195, yAxis_b1 = 135);
         t1 = new Timer();
-        count = 30;
+        duration = 30;
         t1.schedule(new TimerTask() {
             @Override
             public void run() {
-                l3.setText(String.valueOf("Time left (seconds): "+count/10+""+count%10));
+                l3.setText(String.valueOf("Time left (seconds): "+duration/10+""+duration%10));
                 if(pause == false){
-                    count--; 
+                    duration--; 
                 }
-                if(count == 0){
+                if(duration == 0){
                     GameOver();
                 }
             }
@@ -856,29 +954,26 @@ public class LabAims extends javax.swing.JFrame {
         catch(Exception ex){
             
         }
-        instantiate_l9();
-        instantiate_l10();
-        instantiate_l13();
+        instantiate_dodgeA();
+        instantiate_dodgeB();
+        instantiate_dodgeC();
+        instantiate_dodgeD();
+        
         t2 = new Timer();
         t2.schedule(new TimerTask() {
             @Override
             public void run() {
                 if(pause == false){
-                    dodgeMe();
+                    dodge();
                 }
-                if(count == 0){
+                if(duration == 0){
                     t2.cancel();
                 }
             }
         }, 0, 100);
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
-
-    private void jMenuItem1MenuKeyPressed(javax.swing.event.MenuKeyEvent evt) {//GEN-FIRST:event_jMenuItem1MenuKeyPressed
-        // TODO add your handling code here:
-        
-    }//GEN-LAST:event_jMenuItem1MenuKeyPressed
+    }//GEN-LAST:event_newStartActionPerformed
     
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    private void togglePauseGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_togglePauseGameActionPerformed
         // TODO add your handling code here:
         if(pause == true){
             pause = false;
@@ -888,7 +983,7 @@ public class LabAims extends javax.swing.JFrame {
             pause = true;
             buttonState(false);
         }
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_togglePauseGameActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         try{
@@ -916,9 +1011,9 @@ public class LabAims extends javax.swing.JFrame {
         cosmeticState();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
-    private void PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayActionPerformed
+    private void GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GameActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_PlayActionPerformed
+    }//GEN-LAST:event_GameActionPerformed
 
     private void CosmeticActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CosmeticActionPerformed
         // TODO add your handling code here:
@@ -929,13 +1024,13 @@ public class LabAims extends javax.swing.JFrame {
 
     }//GEN-LAST:event_HelpActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+    private void ScoreboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ScoreboardActionPerformed
         // TODO add your handling code here:
         scoreBoard();
         model.setDataVector(datasetA,column);
         table.setModel(model);
         JOptionPane.showMessageDialog(null, pane);
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    }//GEN-LAST:event_ScoreboardActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         try{
@@ -1003,9 +1098,17 @@ public class LabAims extends javax.swing.JFrame {
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         // TODO add your handling code here:
-        
-        JOptionPane.showMessageDialog(null, "Hatdog BIG :O");
-        
+        String
+            introGame = "Welcome to our hypercasual game, where you simply click and dodge enemies to gain score\n",
+            sectionAGame = "In current view, you'll see top-bar, where Game/Cosmetic/Help this each have inner options that able differs to game \n",
+            sectionBGame = "At top left just below the top-bar, a display of Current Score, Highest Score, & Current Player Name \n",
+            sectionCGame = "At bottom left, a display of Enemies with say on how to deal with them, fail to do so, on: clickable deducts a score of "+deduct_button+" as for dodge, a score of "+deduct_dodge+"\n",
+            startGame = "Those said, to Start a Game Click on Tab \"Game\" and select \"New\"  \n",
+            toggleGame = "- To toggle Pause/Play over the current Game, Click on Tab \"Game\" and select \"Pause/Play\" \n",
+            refreshGame = "- To restore to default display, Click on Tab \"Game\" and select \"Refresh\"  \n",
+            scoreboardGame = "- To view scoreboard, click on Tab \"Game\" and select \"Scoreboard\"";
+            
+        JOptionPane.showMessageDialog(null, introGame+sectionAGame+sectionBGame+sectionCGame+startGame+toggleGame+refreshGame+scoreboardGame);
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void b4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b4MousePressed
@@ -1036,20 +1139,20 @@ public class LabAims extends javax.swing.JFrame {
         cosmeticState();
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
-    private void l9MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_l9MouseEntered
+    private void dodgeAMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeAMouseEntered
         if(pause == false){
-            scoreCurrent -= 50;
+            scoreCurrent -= deduct_dodge;
             updateGUI();
         }
-    }//GEN-LAST:event_l9MouseEntered
+    }//GEN-LAST:event_dodgeAMouseEntered
 
-    private void l10MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_l10MouseEntered
+    private void dodgeBMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeBMouseEntered
         // TODO add your handling code here:
         if(pause == false){
-            scoreCurrent -= 50;
+            scoreCurrent -= deduct_dodge;
             updateGUI();
         }
-    }//GEN-LAST:event_l10MouseEntered
+    }//GEN-LAST:event_dodgeBMouseEntered
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
         // TODO add your handling code here:
@@ -1077,17 +1180,17 @@ public class LabAims extends javax.swing.JFrame {
         cosmeticState();
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
-    private void l13MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_l13MouseEntered
+    private void dodgeCMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeCMouseEntered
         // TODO add your handling code here:
         if(pause == false){
-            scoreCurrent -= 50;
+            scoreCurrent -= deduct_dodge;
             updateGUI();
         }
-    }//GEN-LAST:event_l13MouseEntered
+    }//GEN-LAST:event_dodgeCMouseEntered
 
-    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
+    private void refreshGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshGameActionPerformed
         refreshGUI();
-    }//GEN-LAST:event_jMenuItem10ActionPerformed
+    }//GEN-LAST:event_refreshGameActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
         // TODO add your handling code here:
@@ -1105,6 +1208,13 @@ public class LabAims extends javax.swing.JFrame {
         }
         cosmeticState();
     }//GEN-LAST:event_jMenuItem11ActionPerformed
+
+    private void dodgeDMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeDMouseEntered
+        if(pause == false){
+            scoreCurrent -= deduct_dodge;
+            updateGUI();
+        }
+    }//GEN-LAST:event_dodgeDMouseEntered
 
     /**
      * @param args the command line arguments
@@ -1144,18 +1254,19 @@ public class LabAims extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu Cosmetic;
+    private javax.swing.JMenu Game;
     private javax.swing.JMenu Help;
-    private javax.swing.JMenu Play;
+    private javax.swing.JMenuItem Scoreboard;
     private javax.swing.JButton b1;
     private javax.swing.JButton b2;
     private javax.swing.JButton b3;
     private javax.swing.JButton b4;
+    private javax.swing.JLabel dodgeA;
+    private javax.swing.JLabel dodgeB;
+    private javax.swing.JLabel dodgeC;
+    private javax.swing.JLabel dodgeD;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
@@ -1163,10 +1274,8 @@ public class LabAims extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JLabel l1;
-    private javax.swing.JLabel l10;
     private javax.swing.JLabel l11;
     private javax.swing.JLabel l12;
-    private javax.swing.JLabel l13;
     private javax.swing.JLabel l2;
     private javax.swing.JLabel l3;
     private javax.swing.JLabel l4;
@@ -1174,6 +1283,8 @@ public class LabAims extends javax.swing.JFrame {
     private javax.swing.JLabel l6;
     private javax.swing.JLabel l7;
     private javax.swing.JLabel l8;
-    private javax.swing.JLabel l9;
+    private javax.swing.JMenuItem newGame;
+    private javax.swing.JMenuItem refreshGame;
+    private javax.swing.JMenuItem togglePauseGame;
     // End of variables declaration//GEN-END:variables
 }
