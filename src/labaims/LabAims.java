@@ -6,14 +6,16 @@
 package labaims;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -23,6 +25,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -35,14 +39,14 @@ import javax.swing.table.DefaultTableModel;
 public class LabAims extends javax.swing.JFrame {
     String 
         name = "annonymous",
-        dodge = "dodge me!", 
+        enemyDodgeColor, 
             
         pattern = "YYYYMMddHHmm",
         date,
             
-        colorLMB,
-        colorMMB,
-        colorRMB,
+        enemyLMBColor,
+        enemyMMBColor,
+        enemyRMBColor,
             
         content = "",
         tmp = "",
@@ -50,41 +54,42 @@ public class LabAims extends javax.swing.JFrame {
         path;
     
     int
-        deduct_dodge = 50,
-        deduct_button = 1000,
+        deduct_dodgeable = 50,
+        deduct_clickable = 200,
             
         duration=30,
             
-        scoreCurrent = 0, 
-        scoreHighest = 0,
+        scoreAtCurrent = 0, 
+        scoreAtHighest = 0,
             
-        xAxis_b1, 
-        yAxis_b1,
-        random,
+        xAxis_clickableA, 
+        yAxis_clickableA,
+        random_clickableA,
             
-        xAxis_dodgeA, 
-        yAxis_dodgeA,
-        speed_dodgeA,
-        random_dodgeA,
+        xAxis_dodgeableA, 
+        yAxis_dodgeableA,
+        speed_dodgeableA,
+        random_dodgeableA,
             
-        xAxis_dodgeB, 
-        yAxis_dodgeB,
-        speed_dodgeB,
-        random_dodgeB,
+        xAxis_dodgeableB, 
+        yAxis_dodgeableB,
+        speed_dodgeableB,
+        random_dodgeableB,
             
-        xAxis_dodgeC, 
-        yAxis_dodgeC,
-        speed_dodgeC,
-        random_dodgeC,
+        xAxis_dodgeableC, 
+        yAxis_dodgeableC,
+        speed_dodgeableC,
+        random_dodgeableC,
             
-        xAxis_dodgeD, 
-        yAxis_dodgeD,
-        speed_dodgeD,
-        random_dodgeD;
+        xAxis_dodgeableD, 
+        yAxis_dodgeableD,
+        speed_dodgeableD,
+        random_dodgeableD;
     
     boolean 
-        pause = true, 
-        start = false;
+        play = true, 
+        start = false,
+        stateA = true;
     
     Scanner 
         read;
@@ -93,8 +98,8 @@ public class LabAims extends javax.swing.JFrame {
         write;
     
     Timer 
-        t1, 
-        t2;
+        timerA, 
+        timerB;
     
     SimpleDateFormat 
         simpleDateFormat = new SimpleDateFormat(pattern);
@@ -105,7 +110,7 @@ public class LabAims extends javax.swing.JFrame {
     File 
         directory = new File(path = currentRelativePath.toAbsolutePath().toString()+"/bin/"),
             
-        scoreboard = new File(path+"scoreboard.txt"),
+        scoreboardFile = new File(path+"scoreboard.txt"),
             
         cosmetic = new File(path+"cosmetic.txt");
     
@@ -129,9 +134,10 @@ public class LabAims extends javax.swing.JFrame {
         m;
     
     Color
-        enemyA = Color.decode(colorLMB = "#FF0000"),
-        enemyB = Color.decode(colorMMB = "#00FFFF"),
-        enemyC = Color.decode(colorRMB = "#FFC0CB");
+        enemyLMB = Color.decode(enemyLMBColor = "#FF0000"),
+        enemyMMB = Color.decode(enemyMMBColor = "#00FFFF"),
+        enemyRMB = Color.decode(enemyRMBColor = "#FFC0CB"),
+        enemyDodge = Color.decode(enemyDodgeColor = "#000000");
     
     DefaultTableModel 
         model = new DefaultTableModel();
@@ -142,6 +148,8 @@ public class LabAims extends javax.swing.JFrame {
     JScrollPane 
         pane = new JScrollPane(table);
     
+    
+    
     public LabAims() {
         initComponents();
         
@@ -150,14 +158,15 @@ public class LabAims extends javax.swing.JFrame {
         directory.mkdirs();
         try {
             cosmetic.createNewFile();
-            scoreboard.createNewFile();
-            read = new Scanner(scoreboard);
+            scoreboardFile.createNewFile();
+            read = new Scanner(scoreboardFile);
         } catch (IOException ex) {
         }
         
         column = new Object[]{"score", "player", "data"};
         
-        refreshGUI();
+        gameReset();
+        cosmeticInitialize();
         
         model.setRowCount(0);
         model.setDataVector(datasetA,column);
@@ -175,77 +184,78 @@ public class LabAims extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        b1 = new javax.swing.JButton();
-        l1 = new javax.swing.JLabel();
-        l2 = new javax.swing.JLabel();
-        l3 = new javax.swing.JLabel();
-        l4 = new javax.swing.JLabel();
-        b2 = new javax.swing.JButton();
-        b3 = new javax.swing.JButton();
-        l5 = new javax.swing.JLabel();
-        l6 = new javax.swing.JLabel();
-        b4 = new javax.swing.JButton();
-        l7 = new javax.swing.JLabel();
+        clickableA = new javax.swing.JButton();
+        scoreAtCurrentLabel = new javax.swing.JLabel();
+        scoreAtHighestLabel = new javax.swing.JLabel();
+        timerALabel = new javax.swing.JLabel();
         l8 = new javax.swing.JLabel();
-        dodgeA = new javax.swing.JLabel();
-        dodgeB = new javax.swing.JLabel();
-        dodgeC = new javax.swing.JLabel();
-        l11 = new javax.swing.JLabel();
-        l12 = new javax.swing.JLabel();
-        dodgeD = new javax.swing.JLabel();
+        playerNameLabel = new javax.swing.JLabel();
+        l5 = new javax.swing.JLabel();
+        l4 = new javax.swing.JLabel();
+        l6 = new javax.swing.JLabel();
+        b3 = new javax.swing.JButton();
+        b2 = new javax.swing.JButton();
+        b1 = new javax.swing.JButton();
+        l7 = new javax.swing.JLabel();
+        dodgeableA = new javax.swing.JLabel();
+        l9 = new javax.swing.JLabel();
+        dodgeableB = new javax.swing.JLabel();
+        dodgeableC = new javax.swing.JLabel();
+        dodgeableD = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         Game = new javax.swing.JMenu();
         newGame = new javax.swing.JMenuItem();
         togglePauseGame = new javax.swing.JMenuItem();
-        refreshGame = new javax.swing.JMenuItem();
-        Scoreboard = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
         Cosmetic = new javax.swing.JMenu();
-        jMenuItem11 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
-        jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
-        Help = new javax.swing.JMenu();
+        Scoreboard = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
         setSize(new java.awt.Dimension(400, 400));
 
-        b1.setText("jButton1");
-        b1.addMouseListener(new java.awt.event.MouseAdapter() {
+        clickableA.setText("jButton1");
+        clickableA.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                b1MousePressed(evt);
+                clickableAMousePressed(evt);
             }
         });
 
-        l1.setText("Current Score:");
+        scoreAtCurrentLabel.setText("Current Score:");
 
-        l2.setText("Highest Score:");
+        scoreAtHighestLabel.setText("Highest Score:");
 
-        l3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        l3.setText("Time left (seconds): 30");
+        timerALabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        timerALabel.setText("Time left (seconds): 30");
 
-        l4.setText("left-click enemies:");
+        l8.setText("player name ->");
+
+        playerNameLabel.setText("\"\"");
+
+        l5.setText("middle-click enemy ->");
+        l5.setMaximumSize(new java.awt.Dimension(150, 16));
+        l5.setMinimumSize(new java.awt.Dimension(150, 16));
+        l5.setPreferredSize(new java.awt.Dimension(150, 16));
+
+        l4.setText("left-click enemy ->");
         l4.setMaximumSize(new java.awt.Dimension(150, 16));
         l4.setMinimumSize(new java.awt.Dimension(150, 16));
         l4.setPreferredSize(new java.awt.Dimension(150, 16));
 
-        b2.setFocusable(false);
-        b2.setMaximumSize(new java.awt.Dimension(15, 15));
-        b2.setMinimumSize(new java.awt.Dimension(15, 15));
-        b2.setPreferredSize(new java.awt.Dimension(15, 15));
-        b2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                b2MousePressed(evt);
-            }
-        });
-        b2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                b2ActionPerformed(evt);
-            }
-        });
+        l6.setText("right-click enemy ->");
+        l6.setMaximumSize(new java.awt.Dimension(150, 16));
+        l6.setMinimumSize(new java.awt.Dimension(150, 16));
+        l6.setPreferredSize(new java.awt.Dimension(150, 16));
 
         b3.setFocusable(false);
         b3.setMaximumSize(new java.awt.Dimension(15, 15));
@@ -257,67 +267,78 @@ public class LabAims extends javax.swing.JFrame {
             }
         });
 
-        l5.setText("middle-click enemies:");
-        l5.setMaximumSize(new java.awt.Dimension(150, 16));
-        l5.setMinimumSize(new java.awt.Dimension(150, 16));
-        l5.setPreferredSize(new java.awt.Dimension(150, 16));
-
-        l6.setText("right-click enemies:");
-        l6.setMaximumSize(new java.awt.Dimension(150, 16));
-        l6.setMinimumSize(new java.awt.Dimension(150, 16));
-        l6.setPreferredSize(new java.awt.Dimension(150, 16));
-
-        b4.setFocusable(false);
-        b4.setMaximumSize(new java.awt.Dimension(15, 15));
-        b4.setMinimumSize(new java.awt.Dimension(15, 15));
-        b4.setPreferredSize(new java.awt.Dimension(15, 15));
-        b4.addMouseListener(new java.awt.event.MouseAdapter() {
+        b2.setFocusable(false);
+        b2.setMaximumSize(new java.awt.Dimension(15, 15));
+        b2.setMinimumSize(new java.awt.Dimension(15, 15));
+        b2.setPreferredSize(new java.awt.Dimension(15, 15));
+        b2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                b4MousePressed(evt);
+                b2MousePressed(evt);
             }
         });
 
-        l7.setText("Name:");
+        b1.setFocusable(false);
+        b1.setMaximumSize(new java.awt.Dimension(15, 15));
+        b1.setMinimumSize(new java.awt.Dimension(15, 15));
+        b1.setPreferredSize(new java.awt.Dimension(15, 15));
+        b1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                b1MousePressed(evt);
+            }
+        });
+        b1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b1ActionPerformed(evt);
+            }
+        });
 
-        l8.setText("\"\"");
+        l7.setText("dodge enemy ->");
+        l7.setMaximumSize(new java.awt.Dimension(150, 16));
+        l7.setMinimumSize(new java.awt.Dimension(150, 16));
+        l7.setPreferredSize(new java.awt.Dimension(150, 16));
 
-        dodgeA.setText("dodge me!");
-        dodgeA.addMouseListener(new java.awt.event.MouseAdapter() {
+        dodgeableA.setBackground(new java.awt.Color(0, 0, 0));
+        dodgeableA.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        dodgeableA.setPreferredSize(new java.awt.Dimension(100, 20));
+        dodgeableA.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                dodgeAMouseEntered(evt);
+                dodgeableAMouseEntered(evt);
             }
         });
 
-        dodgeB.setText("dodge me!");
-        dodgeB.addMouseListener(new java.awt.event.MouseAdapter() {
+        l9.setBackground(new java.awt.Color(0, 0, 0));
+        l9.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        l9.setPreferredSize(new java.awt.Dimension(100, 20));
+
+        dodgeableB.setBackground(new java.awt.Color(0, 0, 0));
+        dodgeableB.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        dodgeableB.setPreferredSize(new java.awt.Dimension(100, 20));
+        dodgeableB.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                dodgeBMouseEntered(evt);
+                dodgeableBMouseEntered(evt);
             }
         });
 
-        dodgeC.setText("dodge me!");
-        dodgeC.addMouseListener(new java.awt.event.MouseAdapter() {
+        dodgeableC.setBackground(new java.awt.Color(0, 0, 0));
+        dodgeableC.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        dodgeableC.setPreferredSize(new java.awt.Dimension(100, 20));
+        dodgeableC.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                dodgeCMouseEntered(evt);
+                dodgeableCMouseEntered(evt);
             }
         });
 
-        l11.setText("dodge enemies:");
-        l11.setMaximumSize(new java.awt.Dimension(150, 16));
-        l11.setMinimumSize(new java.awt.Dimension(150, 16));
-        l11.setPreferredSize(new java.awt.Dimension(150, 16));
-
-        l12.setText("\"\"");
-        l12.setMaximumSize(new java.awt.Dimension(150, 16));
-        l12.setMinimumSize(new java.awt.Dimension(150, 16));
-        l12.setPreferredSize(new java.awt.Dimension(150, 16));
-
-        dodgeD.setText("dodge me!");
-        dodgeD.addMouseListener(new java.awt.event.MouseAdapter() {
+        dodgeableD.setBackground(new java.awt.Color(0, 0, 0));
+        dodgeableD.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        dodgeableD.setPreferredSize(new java.awt.Dimension(100, 20));
+        dodgeableD.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                dodgeDMouseEntered(evt);
+                dodgeableDMouseEntered(evt);
             }
         });
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel1.setText("Legend");
 
         Game.setText("Game");
         Game.addActionListener(new java.awt.event.ActionListener() {
@@ -342,23 +363,25 @@ public class LabAims extends javax.swing.JFrame {
         });
         Game.add(togglePauseGame);
 
-        refreshGame.setText("Refresh");
-        refreshGame.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem3.setText("Reset");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshGameActionPerformed(evt);
+                jMenuItem3ActionPerformed(evt);
             }
         });
-        Game.add(refreshGame);
+        Game.add(jMenuItem3);
 
-        Scoreboard.setText("Scoreboard");
-        Scoreboard.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem2.setText("See/Hide Legend");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ScoreboardActionPerformed(evt);
+                jMenuItem2ActionPerformed(evt);
             }
         });
-        Game.add(Scoreboard);
+        Game.add(jMenuItem2);
 
         jMenuBar1.add(Game);
+
+        jMenu1.setText("Miscellaneous");
 
         Cosmetic.setText("Cosmetic");
         Cosmetic.addActionListener(new java.awt.event.ActionListener() {
@@ -367,15 +390,7 @@ public class LabAims extends javax.swing.JFrame {
             }
         });
 
-        jMenuItem11.setText("Reset");
-        jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem11ActionPerformed(evt);
-            }
-        });
-        Cosmetic.add(jMenuItem11);
-
-        jMenuItem4.setText("Set Left Click Enemy's Color");
+        jMenuItem4.setText("Set left-click enemy's Color");
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem4ActionPerformed(evt);
@@ -383,7 +398,7 @@ public class LabAims extends javax.swing.JFrame {
         });
         Cosmetic.add(jMenuItem4);
 
-        jMenuItem5.setText("Set Middle Click Enemy's Color");
+        jMenuItem5.setText("Set middle-click enemy's Color");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem5ActionPerformed(evt);
@@ -391,7 +406,7 @@ public class LabAims extends javax.swing.JFrame {
         });
         Cosmetic.add(jMenuItem5);
 
-        jMenuItem6.setText("Set Right Click Enemy's Color");
+        jMenuItem6.setText("Set right-click-enemy's Color");
         jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem6ActionPerformed(evt);
@@ -399,15 +414,7 @@ public class LabAims extends javax.swing.JFrame {
         });
         Cosmetic.add(jMenuItem6);
 
-        jMenuItem9.setText("Set Dodge Enemy's Label");
-        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem9ActionPerformed(evt);
-            }
-        });
-        Cosmetic.add(jMenuItem9);
-
-        jMenuItem8.setText("Set Player's Name");
+        jMenuItem8.setText("Set player's Name");
         jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem8ActionPerformed(evt);
@@ -415,24 +422,37 @@ public class LabAims extends javax.swing.JFrame {
         });
         Cosmetic.add(jMenuItem8);
 
-        jMenuBar1.add(Cosmetic);
+        jMenu1.add(Cosmetic);
 
-        Help.setText("Help");
-        Help.addActionListener(new java.awt.event.ActionListener() {
+        Scoreboard.setText("Scoreboard");
+        Scoreboard.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                HelpActionPerformed(evt);
+                ScoreboardActionPerformed(evt);
             }
         });
+        jMenu1.add(Scoreboard);
 
-        jMenuItem7.setText("Guide");
+        jMenuItem1.setText("Restore");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Help");
+
+        jMenuItem7.setText("Intro");
         jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem7ActionPerformed(evt);
             }
         });
-        Help.add(jMenuItem7);
+        jMenu2.add(jMenuItem7);
 
-        jMenuBar1.add(Help);
+        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -440,96 +460,125 @@ public class LabAims extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(l3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(timerALabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(l5, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(201, 201, 201)
+                        .addComponent(clickableA, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(b3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(l7, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(l8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(l1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(l2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(l4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(5, 5, 5)
-                                        .addComponent(b2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(l5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(5, 5, 5)
-                                        .addComponent(b3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(5, 5, 5)
-                                        .addComponent(b4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(l11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(5, 5, 5)
-                                        .addComponent(l12, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(0, 115, Short.MAX_VALUE)))
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
+                            .addComponent(l8, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(l7, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(dodgeB)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(190, 190, 190))
+                                .addComponent(l9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 168, Short.MAX_VALUE))
+                            .addComponent(playerNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(scoreAtHighestLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(dodgeA)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dodgeD)
-                    .addComponent(dodgeC))
-                .addGap(0, 0, Short.MAX_VALUE))
+                                .addGap(135, 135, 135)
+                                .addComponent(b2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(scoreAtCurrentLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(l4, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(150, Short.MAX_VALUE)
+                    .addComponent(dodgeableA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(150, Short.MAX_VALUE)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(160, Short.MAX_VALUE)
+                    .addComponent(dodgeableB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(140, 140, 140)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(170, Short.MAX_VALUE)
+                    .addComponent(dodgeableC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(130, 130, 130)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(180, Short.MAX_VALUE)
+                    .addComponent(dodgeableD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(120, 120, 120)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(l1)
+                .addComponent(scoreAtCurrentLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(l2)
-                .addGap(9, 9, 9)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(l7)
-                    .addComponent(l8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(l3)
-                .addGap(27, 27, 27)
-                .addComponent(dodgeA)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dodgeB))
-                .addGap(18, 18, 18)
-                .addComponent(dodgeC)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dodgeD)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(l11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(l12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(scoreAtHighestLabel)
+                .addGap(38, 38, 38)
+                .addComponent(timerALabel)
+                .addGap(26, 26, 26)
+                .addComponent(clickableA, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(l4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(b1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(l5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(b3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(b2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(l5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(b3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(l6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(b4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(39, 39, 39))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(l7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(l8)
+                            .addComponent(playerNameLabel)))
+                    .addComponent(l9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(75, 75, 75))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(178, Short.MAX_VALUE)
+                    .addComponent(dodgeableA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(178, Short.MAX_VALUE)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(189, Short.MAX_VALUE)
+                    .addComponent(dodgeableB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(167, 167, 167)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(199, Short.MAX_VALUE)
+                    .addComponent(dodgeableC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(157, 157, 157)))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(209, Short.MAX_VALUE)
+                    .addComponent(dodgeableD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(147, 147, 147)))
         );
 
         l6.getAccessibleContext().setAccessibleName("right-click enemies");
@@ -537,70 +586,151 @@ public class LabAims extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    private void updateGUI(){
-        if(scoreCurrent != 0) l1.setText("Current Score: "+scoreCurrent); 
-        if(scoreHighest != 0) l2.setText("Highest Score: "+scoreHighest); 
+    private void gameInitialize(){
+        dodgeableA.setLocation(-50,-50);
+        dodgeableB.setLocation(-50,-50);
+        dodgeableC.setLocation(-50,-50);
+        dodgeableD.setLocation(-50,-50);
+        scoreAtCurrent = 0;
+        timerALabel.setVisible(true);
+        timerALabel.setText("Time left (seconds): "+(duration = 30));
+        clickableA.setLocation(xAxis_clickableA = 195, yAxis_clickableA = 135);
+        colorRandom();
+        enemyClickableState(false);
     }
-    
-    private void refreshGUI(){
-        GameOver();
-        cosmeticState();
-        scoreBoard();
-        
-        l8.setText(name);
-        
-        dodgeA.setLocation(-50, -15);
-        dodgeA.setText(dodge);
-        
-        dodgeB.setLocation(-50, -15);
-        dodgeB.setText(dodge);
-        
-        dodgeC.setLocation(-50, -15);
-        dodgeC.setText(dodge);
-        
-        dodgeD.setLocation(-50, -15);
-        dodgeD.setText(dodge);
-        
-        l12.setText(dodge);
-        
-        b2.setBackground(enemyA);
-        b3.setBackground(enemyB);
-        b4.setBackground(enemyC);
-        
-        b2.setFocusable(false);
-        b3.setFocusable(false);
-        b4.setFocusable(false);
-        
-        l3.setText("Time left (seconds): 30");
-        
-        b1.setLocation(195, 135);
-        b1.setEnabled(false);
-        
-        l1.setText("Current Score: "+scoreCurrent); 
-        if(scoreHighest != 0) l2.setText("Highest Score: "+scoreHighest); 
+    private void gameUpdate(){
+        scoreboardInitialization();
+        if(scoreAtCurrent != 0) scoreAtCurrentLabel.setText("Current Score: "+scoreAtCurrent);
+        else scoreAtCurrentLabel.setText("Current Score: ");
+        if(scoreAtHighest != 0) scoreAtHighestLabel.setText("Highest Score: "+scoreAtHighest);
+        else scoreAtHighestLabel.setText("Highest Score: ");
     }
-    
-    private void scoreBoard(){
+    private void gameStart(){
+        gameInitialize();
+        gameUpdate();
+        gameGuide(false);
+        play = true;
+    }
+    private void gameGuide(boolean state){
+        jLabel1.setVisible(state);
+        l4.setVisible(state);
+        l5.setVisible(state);
+        l6.setVisible(state);
+        l7.setVisible(state);
+        l8.setVisible(state);
+        l9.setVisible(state);
+
+        b1.setVisible(state);
+        b2.setVisible(state);
+        b3.setVisible(state);
+
+        playerNameLabel.setVisible(state);
+    }
+    private void gameReset(){
+        gameInitialize();
+        timerALabel.setVisible(false);
+        play = false;
+        enemyClickableState(false);
+        gameUpdate();
+        scoreAtCurrentLabel.setText("Current Score: \" Start A Game \"");
+    }
+    private void gameOver(){
+        try {
+            play = false;
+            gameGuide(true);
+            enemyClickableState(play);
+            timerALabel.setText("Times Up!");
+            timerA.cancel();
+            timerB.cancel();
+            
+            write = new BufferedWriter(new FileWriter(scoreboardFile, true));
+            if(scoreAtCurrent != 0){
+                date = simpleDateFormat.format(new Date());
+                write.append("\n"+scoreAtCurrent+" "+name+" "+date);
+                write.flush();
+            }
+            gameUpdate();
+        } catch (IOException e) {
+        }
+    }
+    private void enemyClickableState(boolean state){
+        clickableA.setEnabled(state);
+        clickableA.setSelected(state);
+        clickableA.setFocusable(state);
+    }
+    private void gameState(){
+        if(play == true){
+            play = false;
+        }else if(play == false){
+            play = true;
+        }
+    }
+    private void cosmeticInitialize(){
+        try{
+            read = new Scanner(cosmetic);
+            if(read.hasNextLine()==false){
+                cosmeticReset();
+            }else{
+                cosmeticUpdate();
+            }
+        }catch(FileNotFoundException | NumberFormatException e){
+            
+        }
+    }
+    private void cosmeticUpdate(){
+        try{
+            read = new Scanner(cosmetic);
+            while (read.hasNextLine()) {
+                String currLine = read.nextLine();
+                scanned = currLine.split(" ",2);
+                if(currLine.contains("lmb ")){
+                    enemyLMB = Color.decode(enemyLMBColor = scanned[1]);
+                }else if(currLine.contains("mmb ")){
+                    enemyMMB = Color.decode(enemyMMBColor = scanned[1]);
+                }else if(currLine.contains("rmb ")){
+                    enemyRMB = Color.decode(enemyRMBColor = scanned[1]);
+                }else if(currLine.contains("dodge ")){
+                    enemyDodge = Color.decode(enemyDodgeColor = scanned[1]);
+                }else if(currLine.contains("name ")){
+                    playerNameLabel.setText(name = scanned[1]);
+                }
+            }
+            b1.setBackground(enemyLMB);
+            b2.setBackground(enemyMMB);
+            b3.setBackground(enemyRMB);
+        }catch(FileNotFoundException | NumberFormatException e){
+            
+        }
+    }
+    private void cosmeticReset(){
+        try{
+            write = new BufferedWriter(new FileWriter(cosmetic)); 
+            write.write("lmb "+(enemyLMBColor="#FF0000")+"\nmmb "+(enemyMMBColor="#00FFFF")+"\nrmb "+(enemyRMBColor="#FFC0CB")+"\nname "+(name="annonymous"));
+            write.close();
+        }catch(IOException e){            
+        }
+        cosmeticUpdate();
+    } 
+    private void scoreboardInitialization(){
         model.setRowCount(0);
         scanned = null;
         int x = 0, y = 0;
         try {
-            scoreboard.createNewFile();
+            scoreboardFile.createNewFile();
         } catch (IOException ex) {
         }
         try {
-            read = new Scanner(scoreboard);
+            read = new Scanner(scoreboardFile);
             for(x = 0; read.hasNextLine(); x++){
-                x = x;
                 scanned = read.nextLine().split(" ");
                 y = scanned.length;
             }
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
         }
         datasetA = new Object[x][y];
         
         try {
-            read = new Scanner(scoreboard);
+            read = new Scanner(scoreboardFile);
             for(x = 0; read.hasNextLine(); x++){
                 try{
                     scanned = read.nextLine().split(" ");
@@ -611,363 +741,321 @@ public class LabAims extends javax.swing.JFrame {
                     
                 }
             }
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
         }
         scoreSort();
     }
-    
     private void scoreSort() {
-        Arrays.sort(datasetA, new Comparator<Object[]>() {
-            @Override
-            public int compare(Object[] a, Object[] b) {
-                A = a[0];
-                if(A.equals("")) A=0;
-                B = b[0];
-                if(B.equals("")) B=0;
-                return Integer.compare(Integer.valueOf(B.toString()), Integer.valueOf(A.toString()));
-            }
+        Arrays.sort(datasetA, (Object[] a, Object[] b) -> {
+            A = a[0];
+            if(A.equals("")) A=0;
+            B = b[0];
+            if(B.equals("")) B=0;
+            return Integer.compare(Integer.valueOf(B.toString()), Integer.valueOf(A.toString()));
         });
         try{
-            scoreHighest = Integer.valueOf(datasetA[0][0].toString());
-            updateGUI();
+            scoreAtHighest = Integer.valueOf(datasetA[0][0].toString());
         }catch(Exception e){
-            l2.setText("Highest Score: ");
+            scoreAtHighest = 0;
         }
     }
-    
-    private void instantiate_dodgeA(){
-        random_dodgeA = ThreadLocalRandom.current().nextInt(0, 4); 
-        if(random_dodgeA == 0||random_dodgeA == 1){
-            yAxis_dodgeA = ThreadLocalRandom.current().nextInt(0, 325);
-            if(random_dodgeA == 0){
-                xAxis_dodgeA = -50;
-            }else if(random_dodgeA == 1){
-                xAxis_dodgeA = 395;
-            }
-        }else if(random_dodgeA == 2||random_dodgeA == 3){
-            xAxis_dodgeA = ThreadLocalRandom.current().nextInt(0, 345);
-            if(random_dodgeA == 2){
-                yAxis_dodgeA = -15;
-            }else if(random_dodgeA == 3){
-                yAxis_dodgeA = 340;
-            }
+    private void scoreboardReset(){
+        try{
+            write = new BufferedWriter(new FileWriter(scoreboardFile)); 
+            write.write("");
+            write.flush();
+        }catch(IOException e){            
         }
-        speed_dodgeA = ThreadLocalRandom.current().nextInt(5, 16);
     }
-    private void instantiate_dodgeB(){
-        random_dodgeB = ThreadLocalRandom.current().nextInt(0, 4); 
-        if(random_dodgeB == 0||random_dodgeB == 1){
-            yAxis_dodgeB = ThreadLocalRandom.current().nextInt(0, 325);
-            if(random_dodgeB == 0){
-                xAxis_dodgeB = -50;
-            }else if(random_dodgeB == 1){
-                xAxis_dodgeB = 395;
-            }
-        }else if(random_dodgeB == 2||random_dodgeB == 3){
-            xAxis_dodgeB = ThreadLocalRandom.current().nextInt(0, 345);
-            if(random_dodgeB == 2){
-                yAxis_dodgeB = -15;
-            }else if(random_dodgeB == 3){
-                yAxis_dodgeB = 340;
-            }
+    private void restore(){
+        cosmeticReset();
+        scoreboardReset();
+        gameReset();
+    }
+    private void colorRandom() {
+        random_clickableA = ThreadLocalRandom.current().nextInt(0, 3);  
+        switch (random_clickableA) {
+            case 0:
+                clickableA.setBackground(enemyLMB);
+                break;
+            case 1:
+                clickableA.setBackground(enemyMMB);
+                break;
+            case 2:
+                clickableA.setBackground(enemyRMB);
+                break;
+            default:
+                break;
         }
-        speed_dodgeB = ThreadLocalRandom.current().nextInt(5, 16);
     }
-    private void instantiate_dodgeC(){
-        random_dodgeC = ThreadLocalRandom.current().nextInt(0, 4); 
-        if(random_dodgeC == 0||random_dodgeC == 1){
-            yAxis_dodgeC = ThreadLocalRandom.current().nextInt(0, 325);
-            if(random_dodgeC == 0){
-                xAxis_dodgeC = -50;
-            }else if(random_dodgeC == 1){
-                xAxis_dodgeC = 395;
+    private void instantiate_dodgeableA(){
+        random_dodgeableA = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_dodgeableA == 0||random_dodgeableA == 1){
+            yAxis_dodgeableA = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_dodgeableA == 0){
+                xAxis_dodgeableA = -50;
+            }else if(random_dodgeableA == 1){
+                xAxis_dodgeableA = 395;
             }
-        }else if(random_dodgeC == 2||random_dodgeC == 3){
-            xAxis_dodgeC = ThreadLocalRandom.current().nextInt(0, 345);
-            if(random_dodgeC == 2){
-                yAxis_dodgeC = -15;
-            }else if(random_dodgeC == 3){
-                yAxis_dodgeC = 340;
+            dodgeableA.setSize(new Dimension(ThreadLocalRandom.current().nextInt(90, 115),ThreadLocalRandom.current().nextInt(15, 30)));
+        }else if(random_dodgeableA == 2||random_dodgeableA == 3){
+            xAxis_dodgeableA = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_dodgeableA == 2){
+                yAxis_dodgeableA = -15;
+            }else if(random_dodgeableA == 3){
+                yAxis_dodgeableA = 340;
             }
+            dodgeableA.setSize(new Dimension(ThreadLocalRandom.current().nextInt(15, 30),ThreadLocalRandom.current().nextInt(90, 115)));
         }
-        speed_dodgeC = ThreadLocalRandom.current().nextInt(5, 16);
+        speed_dodgeableA = ThreadLocalRandom.current().nextInt(5, 16);
     }
-    private void instantiate_dodgeD(){
-	random_dodgeD = ThreadLocalRandom.current().nextInt(0, 4); 
-	if(random_dodgeD == 0||random_dodgeD == 1){
-		yAxis_dodgeD = ThreadLocalRandom.current().nextInt(0, 325);
-		if(random_dodgeD == 0){
-			xAxis_dodgeD = -50;
-		}else if(random_dodgeD == 1){
-			xAxis_dodgeD = 395;
-		}
-	}else if(random_dodgeD == 2||random_dodgeD == 3){
-		xAxis_dodgeD = ThreadLocalRandom.current().nextInt(0, 345);
-		if(random_dodgeD == 2){
-			yAxis_dodgeD = -15;
-		}else if(random_dodgeD == 3){
-			yAxis_dodgeD = 340;
-		}
-	}
-	speed_dodgeD = ThreadLocalRandom.current().nextInt(5, 16);
+    private void instantiate_dodgeableB(){
+        random_dodgeableB = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_dodgeableB == 0||random_dodgeableB == 1){
+            yAxis_dodgeableB = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_dodgeableB == 0){
+                xAxis_dodgeableB = -50;
+            }else if(random_dodgeableB == 1){
+                xAxis_dodgeableB = 395;
+            }
+            dodgeableB.setSize(new Dimension(ThreadLocalRandom.current().nextInt(90, 115),ThreadLocalRandom.current().nextInt(15, 30)));
+        }else if(random_dodgeableB == 2||random_dodgeableB == 3){
+            xAxis_dodgeableB = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_dodgeableB == 2){
+                yAxis_dodgeableB = -15;
+            }else if(random_dodgeableB == 3){
+                yAxis_dodgeableB = 340;
+            }
+            dodgeableB.setSize(new Dimension(ThreadLocalRandom.current().nextInt(15, 30),ThreadLocalRandom.current().nextInt(90, 115)));
+        }
+        speed_dodgeableB = ThreadLocalRandom.current().nextInt(5, 16);
+    }
+    private void instantiate_dodgeableC(){
+        random_dodgeableC = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_dodgeableC == 0||random_dodgeableC == 1){
+            yAxis_dodgeableC = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_dodgeableC == 0){
+                xAxis_dodgeableC = -50;
+            }else if(random_dodgeableC == 1){
+                xAxis_dodgeableC = 395;
+            }
+            dodgeableC.setSize(new Dimension(ThreadLocalRandom.current().nextInt(90, 115),ThreadLocalRandom.current().nextInt(15, 30)));
+        }else if(random_dodgeableC == 2||random_dodgeableC == 3){
+            xAxis_dodgeableC = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_dodgeableC == 2){
+                yAxis_dodgeableC = -15;
+            }else if(random_dodgeableC == 3){
+                yAxis_dodgeableC = 340;
+            }
+            dodgeableC.setSize(new Dimension(ThreadLocalRandom.current().nextInt(15, 30),ThreadLocalRandom.current().nextInt(90, 115)));
+        }
+        speed_dodgeableC = ThreadLocalRandom.current().nextInt(5, 16);
+    }
+    private void instantiate_dodgeableD(){
+        random_dodgeableD = ThreadLocalRandom.current().nextInt(0, 4); 
+        if(random_dodgeableD == 0||random_dodgeableD == 1){
+            yAxis_dodgeableD = ThreadLocalRandom.current().nextInt(0, 325);
+            if(random_dodgeableD == 0){
+                xAxis_dodgeableD = -50;
+            }else if(random_dodgeableD == 1){
+                xAxis_dodgeableD = 395;
+            }
+            dodgeableD.setSize(new Dimension(ThreadLocalRandom.current().nextInt(90, 115),ThreadLocalRandom.current().nextInt(15, 30)));
+        }else if(random_dodgeableD == 2||random_dodgeableD == 3){
+            xAxis_dodgeableD = ThreadLocalRandom.current().nextInt(0, 345);
+            if(random_dodgeableD == 2){
+                yAxis_dodgeableD = -15;
+            }else if(random_dodgeableD == 3){
+                yAxis_dodgeableD = 340;
+            }
+            dodgeableD.setSize(new Dimension(ThreadLocalRandom.current().nextInt(15, 30),ThreadLocalRandom.current().nextInt(90, 115)));
+        }
+        speed_dodgeableD = ThreadLocalRandom.current().nextInt(5, 16);
     }
     private void dodge(){
-        if(duration < 30){
-            if(dodgeA.getLocation().x < -50){
-            instantiate_dodgeA();
-            }else if(dodgeA.getLocation().x > 395){
-                instantiate_dodgeA();
+        if(duration <= 25){
+            if(dodgeableA.getLocation().x < -50){
+                instantiate_dodgeableA();
+            }else if(dodgeableA.getLocation().x > 395){
+                instantiate_dodgeableA();
             }
-            if(dodgeA.getLocation().y < -15){
-                instantiate_dodgeA();
-            }else if(dodgeA.getLocation().y > 340){
-                instantiate_dodgeA();
+            if(dodgeableA.getLocation().y < -15){
+                instantiate_dodgeableA();
+            }else if(dodgeableA.getLocation().y > 340){
+                instantiate_dodgeableA();
             }
-            if(random_dodgeA == 0){
-                xAxis_dodgeA += speed_dodgeA;
-            }else if(random_dodgeA == 1){
-                xAxis_dodgeA -= speed_dodgeA;
-            }else if(random_dodgeA == 2){
-                yAxis_dodgeA += speed_dodgeA;
-            }else if(random_dodgeA == 3){
-                yAxis_dodgeA -= speed_dodgeA;
+            switch (random_dodgeableA) {
+                case 0:
+                    xAxis_dodgeableA += speed_dodgeableA;
+                    break;
+                case 1:
+                    xAxis_dodgeableA -= speed_dodgeableA;
+                    break;
+                case 2:
+                    yAxis_dodgeableA += speed_dodgeableA;
+                    break;
+                case 3:
+                    yAxis_dodgeableA -= speed_dodgeableA;
+                    break;
+                default:
+                    break;
             }
-            dodgeA.setLocation(xAxis_dodgeA, yAxis_dodgeA);
-        }
-        
-        if(duration < 20){
-            if(dodgeB.getLocation().x < -50){
-            instantiate_dodgeB();
-            }else if(dodgeB.getLocation().x > 395){
-                instantiate_dodgeB();
+            dodgeableA.setLocation(xAxis_dodgeableA, yAxis_dodgeableA);
+        }if(duration <= 20){
+            if(dodgeableB.getLocation().x < -50){
+                instantiate_dodgeableB();
+            }else if(dodgeableB.getLocation().x > 395){
+                instantiate_dodgeableB();
             }
-            if(dodgeB.getLocation().y < -15){
-                instantiate_dodgeB();
-            }else if(dodgeB.getLocation().y > 340){
-                instantiate_dodgeB();
+            if(dodgeableB.getLocation().y < -15){
+                instantiate_dodgeableB();
+            }else if(dodgeableB.getLocation().y > 340){
+                instantiate_dodgeableB();
             }
-            if(random_dodgeB == 0){
-                xAxis_dodgeB += speed_dodgeB;
-            }else if(random_dodgeB == 1){
-                xAxis_dodgeB -= speed_dodgeB;
-            }else if(random_dodgeB == 2){
-                yAxis_dodgeB += speed_dodgeB;
-            }else if(random_dodgeB == 3){
-                yAxis_dodgeB -= speed_dodgeB;
+            switch (random_dodgeableB) {
+                case 0:
+                    xAxis_dodgeableB += speed_dodgeableB;
+                    break;
+                case 1:
+                    xAxis_dodgeableB -= speed_dodgeableB;
+                    break;
+                case 2:
+                    yAxis_dodgeableB += speed_dodgeableB;
+                    break;
+                case 3:
+                    yAxis_dodgeableB -= speed_dodgeableB;
+                    break;
+                default:
+                    break;
             }
-            dodgeB.setLocation(xAxis_dodgeB, yAxis_dodgeB);
-        }
-        
-        if(duration < 10){
-            if(dodgeC.getLocation().x < -50){
-            instantiate_dodgeC();
-            }else if(dodgeC.getLocation().x > 395){
-                instantiate_dodgeC();
+            dodgeableB.setLocation(xAxis_dodgeableB, yAxis_dodgeableB);
+        }if(duration <= 15){
+            if(dodgeableC.getLocation().x < -50){
+                instantiate_dodgeableC();
+            }else if(dodgeableC.getLocation().x > 395){
+                instantiate_dodgeableC();
             }
-            if(dodgeC.getLocation().y < -15){
-                instantiate_dodgeC();
-            }else if(dodgeC.getLocation().y > 340){
-                instantiate_dodgeC();
+            if(dodgeableC.getLocation().y < -15){
+                instantiate_dodgeableC();
+            }else if(dodgeableC.getLocation().y > 340){
+                instantiate_dodgeableC();
             }
-            if(random_dodgeC == 0){
-                xAxis_dodgeC += speed_dodgeC;
-            }else if(random_dodgeC == 1){
-                xAxis_dodgeC -= speed_dodgeC;
-            }else if(random_dodgeC == 2){
-                yAxis_dodgeC += speed_dodgeC;
-            }else if(random_dodgeC == 3){
-                yAxis_dodgeC -= speed_dodgeC;
+            switch (random_dodgeableC) {
+                case 0:
+                    xAxis_dodgeableC += speed_dodgeableC;
+                    break;
+                case 1:
+                    xAxis_dodgeableC -= speed_dodgeableC;
+                    break;
+                case 2:
+                    yAxis_dodgeableC += speed_dodgeableC;
+                    break;
+                case 3:
+                    yAxis_dodgeableC -= speed_dodgeableC;
+                    break;
+                default:
+                    break;
             }
-            dodgeC.setLocation(xAxis_dodgeC, yAxis_dodgeC);
-        }
-        
-        if(duration < 5){
-            if(dodgeD.getLocation().x < -50){
-            instantiate_dodgeD();
-            }else if(dodgeD.getLocation().x > 395){
-                instantiate_dodgeD();
+            dodgeableC.setLocation(xAxis_dodgeableC, yAxis_dodgeableC);
+        }if(duration <= 10){
+            if(dodgeableD.getLocation().x < -50){
+                instantiate_dodgeableD();
+            }else if(dodgeableD.getLocation().x > 395){
+                instantiate_dodgeableD();
             }
-            if(dodgeD.getLocation().y < -15){
-                instantiate_dodgeD();
-            }else if(dodgeD.getLocation().y > 340){
-                instantiate_dodgeD();
+            if(dodgeableD.getLocation().y < -15){
+                instantiate_dodgeableD();
+            }else if(dodgeableD.getLocation().y > 340){
+                instantiate_dodgeableD();
             }
-            if(random_dodgeD == 0){
-                xAxis_dodgeD += speed_dodgeD;
-            }else if(random_dodgeD == 1){
-                xAxis_dodgeD -= speed_dodgeD;
-            }else if(random_dodgeD == 2){
-                yAxis_dodgeD += speed_dodgeD;
-            }else if(random_dodgeD == 3){
-                yAxis_dodgeD -= speed_dodgeD;
+            switch (random_dodgeableD) {
+                case 0:
+                    xAxis_dodgeableD += speed_dodgeableD;
+                    break;
+                case 1:
+                    xAxis_dodgeableD -= speed_dodgeableD;
+                    break;
+                case 2:
+                    yAxis_dodgeableD += speed_dodgeableD;
+                    break;
+                case 3:
+                    yAxis_dodgeableD -= speed_dodgeableD;
+                    break;
+                default:
+                    break;
             }
-            dodgeD.setLocation(xAxis_dodgeD, yAxis_dodgeD);
-        }
-        
-    }
-    
-    private void GameOver() {
-        try {
-            buttonState(false);
-            pause = true;
-            l3.setText("Times Up!");
-            t1.cancel();
-            t2.cancel();
-            date = simpleDateFormat.format(new Date());
-            write = new BufferedWriter(new FileWriter(scoreboard, true));
-            if(scoreCurrent != 0){
-                write.append("\n"+scoreCurrent+" "+name+" "+date);
-                write.flush();
-            }
-        } catch (Exception e) {
-        }
-        scoreBoard();
-    }
-    
-    public void cosmeticState(){
-        try{
-            read = new Scanner(cosmetic);
-            if(read.hasNextLine()==false){
-                write = new BufferedWriter(new FileWriter(cosmetic)); 
-                write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\ndodge "+dodge+"\nname "+name);
-                write.close();
-            }else{
-                read = new Scanner(cosmetic);
-                while (read.hasNextLine()) {
-                    String currLine = read.nextLine();
-                    scanned = currLine.split(" ",2);
-                    if(currLine.contains("lmb ")){
-                        colorLMB = scanned[1];
-                    }else if(currLine.contains("mmb ")){
-                        colorMMB = scanned[1];
-                    }else if(currLine.contains("rmb ")){
-                        colorRMB = scanned[1];
-                    }else if(currLine.contains("dodge ")){
-                        dodge = scanned[1];
-                    }else if(currLine.contains("name ")){
-                        name = scanned[1];
-                    }
-                }
-            }
-        }catch(Exception e){
-            
-        }
-        enemyA = Color.decode(colorLMB);
-        enemyB = Color.decode(colorMMB);
-        enemyC = Color.decode(colorRMB);
-    }
-    
-    public void buttonState(boolean state){
-        b1.setSelected(state);
-        b1.setEnabled(state);
-        b1.setFocusable(state);
-    }
-    
-    private void colorRandom() {
-        random = ThreadLocalRandom.current().nextInt(0, 3);  
-        if(random == 0){
-            b1.setBackground(enemyA);
-        }else if(random == 1){
-            b1.setBackground(enemyB);
-        }else if(random == 2){
-            b1.setBackground(enemyC);
+            dodgeableD.setLocation(xAxis_dodgeableD, yAxis_dodgeableD);
         }
     }
-    
-    
-    
-    private void b1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b1MousePressed
-        xAxis_b1 = ThreadLocalRandom.current().nextInt(50, 350); 
-        yAxis_b1 = ThreadLocalRandom.current().nextInt(50, 285);
-        
-        if(b1.isEnabled() == true){
-            if(evt.getButton()==1){         
-                if(b1.getBackground() == enemyA){
-                    scoreCurrent += 100;
-                    b1.setLocation(xAxis_b1, yAxis_b1);
-
-                }else{
-                    scoreCurrent -= deduct_button;
-                    b1.setLocation(xAxis_b1, yAxis_b1);
-                }
-                l1.setText("Current Score: "+scoreCurrent);
-            }else if(evt.getButton()==2){         
-                if(b1.getBackground() == enemyB){
-                    scoreCurrent += 100;
-                    b1.setLocation(xAxis_b1, yAxis_b1);
-
-                }else{
-                    scoreCurrent -= deduct_button;
-                    b1.setLocation(xAxis_b1, yAxis_b1);
-                }
-                l1.setText("Current Score: "+scoreCurrent);
-            }else if(evt.getButton()==3){         
-                if(b1.getBackground() == enemyC){
-                    scoreCurrent += 100;
-                    b1.setLocation(xAxis_b1, yAxis_b1);
-
-                }else{
-                    scoreCurrent -= deduct_button;
-                    b1.setLocation(xAxis_b1, yAxis_b1);
-                }
-                l1.setText("Current Score: "+scoreCurrent);
+    private void clickableAMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_clickableAMousePressed
+        xAxis_clickableA = ThreadLocalRandom.current().nextInt(50, 350); 
+        yAxis_clickableA = ThreadLocalRandom.current().nextInt(50, 285);
+        if(clickableA.isEnabled() == true){
+            switch (evt.getButton()) {
+                case 1:
+                    if(clickableA.getBackground() == enemyLMB){
+                        scoreAtCurrent += 100;
+                        clickableA.setLocation(xAxis_clickableA, yAxis_clickableA);
+                        
+                    }else{
+                        scoreAtCurrent -= deduct_clickable;
+                        clickableA.setLocation(xAxis_clickableA, yAxis_clickableA);
+                    }   scoreAtCurrentLabel.setText("Current Score: "+scoreAtCurrent);
+                    break;
+                case 2:
+                    if(clickableA.getBackground() == enemyMMB){
+                        scoreAtCurrent += 100;
+                        clickableA.setLocation(xAxis_clickableA, yAxis_clickableA);
+                        
+                    }else{
+                        scoreAtCurrent -= deduct_clickable;
+                        clickableA.setLocation(xAxis_clickableA, yAxis_clickableA);
+                    }   scoreAtCurrentLabel.setText("Current Score: "+scoreAtCurrent);
+                    break;
+                case 3:
+                    if(clickableA.getBackground() == enemyRMB){
+                        scoreAtCurrent += 100;
+                        clickableA.setLocation(xAxis_clickableA, yAxis_clickableA);
+                        
+                    }else{
+                        scoreAtCurrent -= deduct_clickable;
+                        clickableA.setLocation(xAxis_clickableA, yAxis_clickableA);
+                    }   scoreAtCurrentLabel.setText("Current Score: "+scoreAtCurrent);
+                    break;
+                default:
+                    break;
             }
             colorRandom();
         }
-    }//GEN-LAST:event_b1MousePressed
+    }//GEN-LAST:event_clickableAMousePressed
 
     private void newStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newStartActionPerformed
-        GameOver();
-        scoreBoard();
-        colorRandom();
-        
-        l1.setText("Current Score: ");
-        scoreCurrent = 0;
-        pause = false;
-        b1.setEnabled(true);
-        
-        try{
-            t1.cancel();
-        }
-        catch(Exception ex){
-            
-        }
-        b1.setLocation(xAxis_b1 = 195, yAxis_b1 = 135);
-        t1 = new Timer();
-        duration = 30;
-        t1.schedule(new TimerTask() {
+        gameStart();
+        timerA = new Timer();
+        timerA.schedule(new TimerTask() {
             @Override
             public void run() {
-                l3.setText(String.valueOf("Time left (seconds): "+duration/10+""+duration%10));
-                if(pause == false){
-                    duration--; 
+                timerALabel.setText(String.valueOf("Time left (seconds): "+duration/10+""+duration%10));
+                if(play == true){
+                    duration--;
+                    enemyClickableState(play);
+                }else if(play == false){
+                    enemyClickableState(play);
                 }
                 if(duration == 0){
-                    GameOver();
+                    gameOver();
                 }
             }
         }, 0, 1_000);
-        
-        try{
-            t2.cancel();
-        }
-        catch(Exception ex){
-            
-        }
-        instantiate_dodgeA();
-        instantiate_dodgeB();
-        instantiate_dodgeC();
-        instantiate_dodgeD();
-        
-        t2 = new Timer();
-        t2.schedule(new TimerTask() {
+        timerB = new Timer();
+        timerB.schedule(new TimerTask() {
             @Override
             public void run() {
-                if(pause == false){
+                if(play == true){
                     dodge();
                 }
                 if(duration == 0){
-                    t2.cancel();
+                    timerB.cancel();
                 }
             }
         }, 0, 100);
@@ -975,14 +1063,7 @@ public class LabAims extends javax.swing.JFrame {
     
     private void togglePauseGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_togglePauseGameActionPerformed
         // TODO add your handling code here:
-        if(pause == true){
-            pause = false;
-            buttonState(true);
-            
-        }else if(pause == false){
-            pause = true;
-            buttonState(false);
-        }
+        gameState();
     }//GEN-LAST:event_togglePauseGameActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
@@ -991,24 +1072,24 @@ public class LabAims extends javax.swing.JFrame {
             m = p.matcher(tmp);
             read = new Scanner(cosmetic);
             if(m.matches()){
-                enemyB = Color.decode(tmp);
+                enemyMMB = Color.decode(tmp);
                 while (read.hasNextLine()) {
                     content = content.concat(read.nextLine() + "\n");
                 }
                 try{
-                    content = content.replaceAll("mmb "+colorMMB, "mmb "+tmp);
+                    content = content.replaceAll("mmb "+enemyMMBColor, "mmb "+tmp);
                     write = new BufferedWriter(new FileWriter(cosmetic));
                     write.write(content);
                     write.close();
-                    colorMMB = tmp;
-                } catch (Exception e) {
+                    enemyMMBColor = tmp;
+                } catch (IOException e) {
                 }
             }else{
             }
-        }catch(Exception e){
+        }catch(HeadlessException | FileNotFoundException | NumberFormatException e){
             
         }
-        cosmeticState();
+        cosmeticInitialize();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GameActionPerformed
@@ -1019,14 +1100,9 @@ public class LabAims extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_CosmeticActionPerformed
 
-    private void HelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HelpActionPerformed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_HelpActionPerformed
-
     private void ScoreboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ScoreboardActionPerformed
         // TODO add your handling code here:
-        scoreBoard();
+        scoreboardInitialization();
         model.setDataVector(datasetA,column);
         table.setModel(model);
         JOptionPane.showMessageDialog(null, pane);
@@ -1038,24 +1114,24 @@ public class LabAims extends javax.swing.JFrame {
             m = p.matcher(tmp);
             read = new Scanner(cosmetic);
             if(m.matches()){
-                enemyA = Color.decode(tmp);
+                enemyLMB = Color.decode(tmp);
                 while (read.hasNextLine()) {
                     content = content.concat(read.nextLine() + "\n");
                 }
                 try{
-                    content = content.replaceAll("lmb "+colorLMB, "lmb "+tmp);
+                    content = content.replaceAll("lmb "+enemyLMBColor, "lmb "+tmp);
                     write = new BufferedWriter(new FileWriter(cosmetic));
                     write.write(content);
                     write.close();
-                    colorLMB = tmp;
-                } catch (Exception e) {
+                    enemyLMBColor = tmp;
+                } catch (IOException e) {
                 }
             }else{
             }
-        }catch(Exception e){
+        }catch(HeadlessException | FileNotFoundException | NumberFormatException e){
             
         }
-        cosmeticState();
+        cosmeticInitialize();
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
@@ -1064,37 +1140,37 @@ public class LabAims extends javax.swing.JFrame {
             m = p.matcher(tmp);
             read = new Scanner(cosmetic);
             if(m.matches()){
-                enemyC = Color.decode(tmp);
+                enemyRMB = Color.decode(tmp);
                 while (read.hasNextLine()) {
                     content = content.concat(read.nextLine() + "\n");
                 }
                 try{
-                    content = content.replaceAll("rmb "+colorRMB, "rmb "+tmp);
+                    content = content.replaceAll("rmb "+enemyRMBColor, "rmb "+tmp);
                     write = new BufferedWriter(new FileWriter(cosmetic));
                     write.write(content);
                     write.close();
-                    colorRMB = tmp;
-                } catch (Exception e) {
+                    enemyRMBColor = tmp;
+                } catch (IOException e) {
                 }
             }else{
             }
-        }catch(Exception e){
+        }catch(HeadlessException | FileNotFoundException | NumberFormatException e){
             
         }
-        cosmeticState();
+        cosmeticInitialize();
     }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void b1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b1MousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_b1MousePressed
 
     private void b2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b2MousePressed
         // TODO add your handling code here:
     }//GEN-LAST:event_b2MousePressed
 
-    private void b3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b3MousePressed
+    private void b1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b1ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_b3MousePressed
-
-    private void b2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_b2ActionPerformed
+    }//GEN-LAST:event_b1ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         // TODO add your handling code here:
@@ -1102,7 +1178,7 @@ public class LabAims extends javax.swing.JFrame {
             introGame = "Welcome to our hypercasual game, where you simply click and dodge enemies to gain score\n",
             sectionAGame = "In current view, you'll see top-bar, where Game/Cosmetic/Help this each have inner options that able differs to game \n",
             sectionBGame = "At top left just below the top-bar, a display of Current Score, Highest Score, & Current Player Name \n",
-            sectionCGame = "At bottom left, a display of Enemies with say on how to deal with them, fail to do so, on: clickable deducts a score of "+deduct_button+" as for dodge, a score of "+deduct_dodge+"\n",
+            sectionCGame = "At bottom left, a display of Enemies with say on how to deal with them, fail to do so, on: clickable deducts a score of "+deduct_clickable+" as for dodge, a score of "+deduct_dodgeable+"\n",
             startGame = "Those said, to Start a Game Click on Tab \"Game\" and select \"New\"  \n",
             toggleGame = "- To toggle Pause/Play over the current Game, Click on Tab \"Game\" and select \"Pause/Play\" \n",
             refreshGame = "- To restore to default display, Click on Tab \"Game\" and select \"Refresh\"  \n",
@@ -1111,9 +1187,9 @@ public class LabAims extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, introGame+sectionAGame+sectionBGame+sectionCGame+startGame+toggleGame+refreshGame+scoreboardGame);
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
-    private void b4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b4MousePressed
+    private void b3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b3MousePressed
         // TODO add your handling code here:
-    }//GEN-LAST:event_b4MousePressed
+    }//GEN-LAST:event_b3MousePressed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
         // TODO add your handling code here:
@@ -1130,91 +1206,63 @@ public class LabAims extends javax.swing.JFrame {
                     write.write(content);
                     write.close();
                     name = tmp;
-                } catch (Exception e) {
+                } catch (IOException e) {
                 }
             }
-        }catch(Exception e){
+        }catch(HeadlessException | FileNotFoundException | NumberFormatException e){
             
         }
-        cosmeticState();
+        cosmeticInitialize();
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
-    private void dodgeAMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeAMouseEntered
-        if(pause == false){
-            scoreCurrent -= deduct_dodge;
-            updateGUI();
+    private void dodgeableAMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeableAMouseEntered
+        if(play == true){
+            scoreAtCurrent -= deduct_dodgeable;
+            gameUpdate();
         }
-    }//GEN-LAST:event_dodgeAMouseEntered
+    }//GEN-LAST:event_dodgeableAMouseEntered
 
-    private void dodgeBMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeBMouseEntered
+    private void dodgeableBMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeableBMouseEntered
+        if(play == true){
+            scoreAtCurrent -= deduct_dodgeable;
+            gameUpdate();
+        }
+    }//GEN-LAST:event_dodgeableBMouseEntered
+
+    private void dodgeableCMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeableCMouseEntered
+        if(play == true){
+            scoreAtCurrent -= deduct_dodgeable;
+            gameUpdate();
+        }
+    }//GEN-LAST:event_dodgeableCMouseEntered
+
+    private void dodgeableDMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeableDMouseEntered
+        if(play == true){
+            scoreAtCurrent -= deduct_dodgeable;
+            gameUpdate();
+        }
+    }//GEN-LAST:event_dodgeableDMouseEntered
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
-        if(pause == false){
-            scoreCurrent -= deduct_dodge;
-            updateGUI();
-        }
-    }//GEN-LAST:event_dodgeBMouseEntered
+        gameReset();
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
 
-    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
-        try{
-            tmp = JOptionPane.showInputDialog("Label Please?");
-            read = new Scanner(cosmetic);
-            if(tmp.length()>5){
-                while (read.hasNextLine()) {
-                    content = content.concat(read.nextLine() + "\n");
-                }
-                try{
-                    content = content.replaceAll("dodge "+dodge, "dodge "+tmp);
-                    write = new BufferedWriter(new FileWriter(cosmetic));
-                    write.write(content);
-                    write.close();
-                    dodge = tmp;
-                } catch (Exception e) {
-                }
-            }else{
-                JOptionPane.showMessageDialog(null,"More than 5 characters, PLEZ");
-            }
-        }catch(Exception e){
-            
-        }
-        cosmeticState();
-    }//GEN-LAST:event_jMenuItem9ActionPerformed
+        restore();
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-    private void dodgeCMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeCMouseEntered
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
-        if(pause == false){
-            scoreCurrent -= deduct_dodge;
-            updateGUI();
+        if(stateA==true){
+            gameGuide(false);
+            stateA = false;
+        }else if(stateA==false){
+            gameGuide(true);
+            stateA = true;
         }
-    }//GEN-LAST:event_dodgeCMouseEntered
-
-    private void refreshGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshGameActionPerformed
-        refreshGUI();
-    }//GEN-LAST:event_refreshGameActionPerformed
-
-    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        // TODO add your handling code here:
-        colorLMB = "#FF0000";
-        colorMMB = "#00FFFF";
-        colorRMB = "#FFC0CB";
-        name = "annonymous!";
-        dodge = "dodge me!";
-        try{
-            write = new BufferedWriter(new FileWriter(cosmetic)); 
-            write.write("lmb "+colorLMB+"\nmmb "+colorMMB+"\nrmb "+colorRMB+"\ndodge "+dodge+"\nname "+name);
-            write.close();
-        }catch(Exception e){
-            
-        }
-        cosmeticState();
-    }//GEN-LAST:event_jMenuItem11ActionPerformed
-
-    private void dodgeDMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dodgeDMouseEntered
-        if(pause == false){
-            scoreCurrent -= deduct_dodge;
-            updateGUI();
-        }
-    }//GEN-LAST:event_dodgeDMouseEntered
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1255,36 +1303,38 @@ public class LabAims extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu Cosmetic;
     private javax.swing.JMenu Game;
-    private javax.swing.JMenu Help;
     private javax.swing.JMenuItem Scoreboard;
     private javax.swing.JButton b1;
     private javax.swing.JButton b2;
     private javax.swing.JButton b3;
-    private javax.swing.JButton b4;
-    private javax.swing.JLabel dodgeA;
-    private javax.swing.JLabel dodgeB;
-    private javax.swing.JLabel dodgeC;
-    private javax.swing.JLabel dodgeD;
+    private javax.swing.JButton clickableA;
+    private javax.swing.JLabel dodgeableA;
+    private javax.swing.JLabel dodgeableB;
+    private javax.swing.JLabel dodgeableC;
+    private javax.swing.JLabel dodgeableD;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
-    private javax.swing.JMenuItem jMenuItem9;
-    private javax.swing.JLabel l1;
-    private javax.swing.JLabel l11;
-    private javax.swing.JLabel l12;
-    private javax.swing.JLabel l2;
-    private javax.swing.JLabel l3;
     private javax.swing.JLabel l4;
     private javax.swing.JLabel l5;
     private javax.swing.JLabel l6;
     private javax.swing.JLabel l7;
     private javax.swing.JLabel l8;
+    private javax.swing.JLabel l9;
     private javax.swing.JMenuItem newGame;
-    private javax.swing.JMenuItem refreshGame;
+    private javax.swing.JLabel playerNameLabel;
+    private javax.swing.JLabel scoreAtCurrentLabel;
+    private javax.swing.JLabel scoreAtHighestLabel;
+    private javax.swing.JLabel timerALabel;
     private javax.swing.JMenuItem togglePauseGame;
     // End of variables declaration//GEN-END:variables
 }
