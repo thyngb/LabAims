@@ -1,0 +1,4 @@
+lmb #FF0000
+mmb #00FFFF
+rmb #FFC0CB
+name annonymous
